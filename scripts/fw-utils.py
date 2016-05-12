@@ -83,6 +83,61 @@ class ET312FirmwareUtils(object):
         modem = XMODEM(getc, putc)
         modem.send(io.BytesIO(self.input_file))
 
+    # Our patch file is the output of avr-objdump -D somefile.elf
+    #
+    # 00003022 <replace_0x438>:
+    #   3022:       0c 94 00 18     jmp     0x3000  ; 0x3000 <loopmain>
+    #
+    # read the input binary file
+    # patch following the instructions above
+    # so in that case replacing bytes at 0x438 with 0c 94 00 18
+    # note the asm might go over multiple lines, stop at EOF or a blank line
+    #
+    # For code in the output which isn't in a replace_ section, just patch it
+    # in at the location specified.
+        
+    def patch(self, patchfile):
+        import re
+        self.verbose = False
+
+        patched = 0
+        
+        f = open(patchfile,"r")
+        for line in f:
+            replace = re.search('<replace_([^>]+)',line)
+            if replace:
+                replacestart = int(replace.group(1),16)
+                line = f.readline()
+                replacewith = ""
+
+                while (":" in line):
+                    replacewith += line.split("\t")[1]
+                    line = f.readline()
+
+                for bytes in replacewith.split():
+                    decbyte = int(bytes,16)
+                    if (self.verbose):
+                        print ("Patched %04x with %02x"%(replacestart,decbyte))
+                    self.input_file[replacestart] = decbyte
+                    patched+=1
+                    replacestart+=1
+            elif (':' in line):
+                try:
+                    location = int(line.split("\t")[0].rstrip(':'),16)
+                    hexbytes = line.split("\t")[1]
+                    for bytes in hexbytes.split():
+                        decbyte = int(bytes,16)
+                        self.input_file[location] = decbyte
+                        if (self.verbose):
+                            print ("Code %04x %02x"%(location,decbyte))
+                        location+=1
+                        patched+=1
+                except:
+                    pass
+
+        print("Patched %d bytes" %(patched))
+        self.output_file.write(bytearray(self.input_file))
+        return        
 
 def download_firmware_file(path, filename):
     # If this url ever goes away, just attach
@@ -117,6 +172,8 @@ def main():
     parser.add_argument("-e", "--encrypt", dest="encrypt", action="store_true",
                         help="Encrypt input file, store in output file."
                         " Adds checksum to output by default.")
+    parser.add_argument("-p", "--patch", dest="patch", help="Patch decrypted firmware " +
+                        "using fwpatch file as argument, store in output file")
     parser.add_argument("-u", "--upload", dest="upload",
                         help="Upload input file to box, expects com port as " +
                         "argument. (requires serial and xmodem packages)")
@@ -137,8 +194,8 @@ def main():
         parser.print_help()
         return 1
 
-    if (args.decrypt or args.encrypt) and not args.output_file:
-        print("ERROR: Output file required for encryption/decryption.")
+    if (args.decrypt or args.encrypt or args.patch) and not args.output_file:
+        print("ERROR: Output file required for encryption/decryption/patching.")
         parser.print_help()
         return 1
 
@@ -147,6 +204,8 @@ def main():
         etfw.encrypt()
     elif args.decrypt:
         etfw.decrypt()
+    elif args.patch:
+        etfw.patch(args.patch)
     elif args.upload:
         etfw.upload(args.upload)
     elif args.crc:
