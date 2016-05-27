@@ -108,13 +108,26 @@ Once that transfer is complete, spi_transfer_complete (10f6) will trigger:
 
 *** 1.6 LTC1661:
 
-We have 10 bit dacs now, instead of 8 bit ones.
+We have 10 bit dacs now, instead of 8 bit ones, and the problem is that we've not
+calculated our A value before we have to send it at 10de.  So we initially send
+something useless (0xff00), and then we're set up to send next time.
 
-16 bit input word, 4 control code, 8 data, 2 don't care
+Function at 10de starts the process by setting CS low, [0x208] to a 4, and
+writing a [0x500] to SPDR.
 
-spi_transfer_complete (10f8) in 1.6 fw
+spi_transfer_complete (10f8) in 1.6 fw:
 
-*** to finish
+- if 0x208 is not 4 or less, error
+- dec [0x208]
+- 3? 1114 - write whatever is at 0x501 to SPDR then done
+- 2? 111c - set CS high then LOW, do calc on [x0205] and r7 (Channel A) to set 0x501
+     	    also set 0x500 to 1010..... [load dacB]
+            do a calc on [0x206] and r12 (channel B), set 0x503, send a byte 1001......
+	    [load dacA]
+- 1? 116a - send byte at 0x503
+- 0? 1172 - set CS high
+
+(16 bit input word: 4 control code, 10 data, 2 don't care)
 
 ------------------------------------------------------------
 
