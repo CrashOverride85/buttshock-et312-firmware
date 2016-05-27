@@ -19,83 +19,94 @@ be exactly the same and we'll confirm that at somepoint]
 
 ------------------------------------------------------------
 
+#+BEGIN_EXAMPLE
 "at startup" code 1.6:
 1418:   3e d0           send_data_to_spdr();
 141a:   a4 e0           r26 = 4;                            ; 0x04
 141c:   e4 d8           sleep();                            ; Parameter r26
+#+END_EXAMPLE
 
 1.5 doesn't do the sleep(4)
 
-* harmless, ignore
+- harmless, ignore
 
 ------------------------------------------------------------
 
+#+BEGIN_EXAMPLE
 1.6:
 10ea:   70 91 00 05     lds r23, 0x500
 10ee:   7f b9           IO[SPDR] = r23;
+#+END_EXAMPLE
 
 but 1.5 does r23 = 1 instead
 
-* if we set 0x500 to a 1 it'll work on a 1.5 box
+- if we set 0x500 to a 1 it'll work on a 1.5 box
 
 ------------------------------------------------------------
 
+#+BEGIN_EXAMPLE
 1.6 send_data_to_spdr function:
 149e:   a0 91 00 05     lds r26, 0x0500
 14a2:   af b9           IO[SPDR] = r26;
+#+END_EXAMPLE
 
 but 1.5 does r26 = 1 instead
 
-* if we set 0x500 to a 1 it'll work on a 1.5 box
+- if we set 0x500 to a 1 it'll work on a 1.5 box
 
 ------------------------------------------------------------
 
+#+BEGIN_EXAMPLE
 1.6 during initial reset stuff:
 150c:   af ef           r26 = 0xff;                         ; 255
 150e:   a0 93 00 05     unkown_spdr_value_0 = r26;          ; 0x0500
+#+END_EXAMPLE
 
-* 1.5 doesn't need this.  we'd need to set 0x500 to a 1 on 1.5 boxes (above)
+- 1.5 doesn't need this.  we'd need to set 0x500 to a 1 on 1.5 boxes (above)
 
 ------------------------------------------------------------
 
+#+BEGIN_EXAMPLE
 "at startup code" 1.6:
 1410:   a4 e6           r26 = 100;                          ; 0x64
 1412:   ac 83           Memory[[r28:r29]+4] = r26;
 1414:   ad 83           Memory[[r28:r29]+5] = r26;
+#+END_EXAMPLE
 
-but 1.5 does
-13ec:   a3 e5           r26 = 83;                           ; 0x53
+but 1.5 does r26=83
 
-* level pot defaults.... these get overwritten anyway, ignore
+- level pot defaults.... these get overwritten anyway, ignore
 
 ------------------------------------------------------------
 
+#+BEGIN_EXAMPLE
 1476: 1.6
 	if r27 == 0 then "error 20"
 but 1.5:
         if r27 == 0 then goto 13e2 (restarts box)
+#+END_EXAMPLE
 
-* looks harmless, ignore
+- looks harmless, ignore
 
 ------------------------------------------------------------
 
 spi_transfer_complete is different:
 
-1.5 MAX548:
+*** 1.5 MAX548:
 
 Function at 10de starts the process by setting CS low, [0x208] to a 4, and
 writing a 00000001 to SPDR.  This is control word for "Load DAC A register"
 
 Once that transfer is complete, spi_transfer_complete (10f6) will trigger:
 
-* if 0x208 is not 4 or less, error
-* dec [0x208]
-* 3? Do some calc based on [0x205] and r7 (channel A stuff). Send value to SPDR
-* 2? set CS high then LOW, send a 0x0a [load dac B, update both DACs] to SPDR
-* 1? Do some calc based on [0x206] and r12 (channel B stuff). Send value to SPDR
-* 0? Raise CS (which causes DACs to set output)
+- if 0x208 is not 4 or less, error
+- dec [0x208]
+- 3? Do some calc based on [0x205] and r7 (channel A stuff). Send value to SPDR
+- 2? set CS high then LOW, send a 0x0a [load dac B, update both DACs] to SPDR
+- 1? Do some calc based on [0x206] and r12 (channel B stuff). Send value to SPDR
+- 0? Raise CS (which causes DACs to set output)
 
-1.6 LTC1661:
+*** 1.6 LTC1661:
 
 We have 10 bit dacs now, instead of 8 bit ones.
 
@@ -103,7 +114,7 @@ We have 10 bit dacs now, instead of 8 bit ones.
 
 spi_transfer_complete (10f8) in 1.6 fw
 
-* to finish *
+*** to finish
 
 ------------------------------------------------------------
 
