@@ -17,6 +17,18 @@ the only change is in the code that talks to the DAC.
 data which has the defaults and pattern codes.  We expect those to
 be exactly the same and we'll confirm that at somepoint]
 
+Note that the bootloader does a direct jump to the RESET handler, and
+that handler is in different places on the 1.5 and 1.6
+firmware. Specifically:
+
+1.5 - 0x1476
+1.6 - 0x14a6
+
+We're going to have to make some special accommodations when building
+new firmware around this, but it also means that we can use the jmps
+in the bootloader to detect box versions, so we could build unified
+firmware.
+
 ------------------------------------------------------------
 
 #+BEGIN_EXAMPLE
