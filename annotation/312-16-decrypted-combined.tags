@@ -901,7 +901,7 @@
 0x16de	T	look at $4062-adc2-psu-voltage, if it's greater than 0x92 then error 21, halt (psu voltage too high!)
 0x16b8	L	Function_0x16b8_runs_at_startup_checks_battery_checks_reset_displays_msgs					Parameter r28:r29
 0x1700	T	above sets power status bits [bit0] if we have a battery, [bit1] is PSU is connected, next figure out battery percentage
-0x1406	L	Function_0x1406_runs_at_startup
+0x1406	L	FET_calibration_runs_at_startup
 0x1730	T	look for magic word in eeprom, if eeprom[1]!=0x55 then do factory reset stuff
 0x153e	T	$4070-execute_command and $4071-execute_command = 0xff (no commands)
 0x14ca	T	Read the OCDR byte from 0x3ff and write it to the register (timing, 8MHz)
@@ -920,3 +920,12 @@
 0x12ee	T	if string# < 0x64 then our string is displayed on the left, it's 16 chars long, and the address is 0x1cc8 + 16*string#
 0x12f0	T	if string# >= 0x64 and < 0xc8 then our string is displayed on the right, it's 8 characters, at 0x1dd8 + 16*string#
 0x12f2	T	if string# >= 0xc8 then string is on the left, it's 8 characters, at 0x1dd8 + 16*(string#-0x64)
+
+0x140c	T	Looks like this routine sets up the DAC, enables the FETs a pair at a time, and measures the residual current to use as offset later
+0x1410	T	1.5 boxes set this to 83 instead
+0x141e	T	Do a one time ADC run /64 with no interrupts for ADC0
+0x144c	T	Do a one time ADC run /64 with no interrupts for ADC0
+0x1458	L	wait_until_adc0_conversion
+0x147e	T	Do the same again with the other set of FETs
+0x1484	L	finished_fet_calibration
+0x1492	L	fet_calibration_failed
