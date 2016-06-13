@@ -98,7 +98,7 @@ class ET312FirmwareUtils(object):
         
     def patch(self, patchfile):
         import re
-        self.verbose = False
+        self.verbose = True
 
         patched = 0
         
@@ -121,6 +121,9 @@ class ET312FirmwareUtils(object):
                     self.input_file[replacestart] = decbyte
                     patched+=1
                     replacestart+=1
+            elif ('<.avr.prop>' in line):
+                    while (":" in line):
+                        line = f.readline()
             elif (':' in line):
                 try:
                     location = int(line.split("\t")[0].rstrip(':'),16)
