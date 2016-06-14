@@ -39,8 +39,19 @@ the chip, locking out JTAG access or the ability to read out the flash or
 bootloader via SPI. Starting with V1.4 or higher, the main firmware is field
 upgradeable via the built in serial port. The only way to upgrade older units
 or to flash your own bootloader is to unsolder the microcontroller, and either
-erase it with an external programmer or replace it with your own chip. The I/O
-Pins are used as follows:
+erase it with an external programmer or replace it with your own chip.
+
+Note that these older ATMEGA processors require calibration for their
+internal RC oscillator as used.  If programming a blank chip you first
+need to read the calibration bytes of that part (i.e. using avrdude -t
+"dump calibration" the fourth byte is the calibration byte for 8MHz).
+Then program that byte into 0x3fff in your firmware.  These bytes will
+differ on different chips even from the same batch.  The firmware
+reads that byte to set OSCCAL on startup.  If the byte is inaccurate
+various problems and failures will occur related to timing,
+interrupts, and serial communication.
+
+The I/O Pins are used as follows:
 
 #+BEGIN_EXAMPLE
 
