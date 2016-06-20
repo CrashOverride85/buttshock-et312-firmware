@@ -445,8 +445,11 @@
 0x1fea	P	B	1	Copied to 0x1fe-$41fe-advanced-width
 0x1feb	P	B	1	Copied to 0x1ff-$41ff-advanced-pace
 
-0x1fec	P	W	5	fla_unknown_0x1fec	ref from 0x3be
-0x1ff6	P	B	10	unknown
+0x1fec	P	W	8	fla_unknown_0x1fec	ref from 0x3be
+0x1ffc	P	B	1	box_model_always_0c
+0x1ffd	P	B	1	firmware_version_major
+0x1ffe	P	B	1	firmware_version_minor
+0x1fff	P	B	1	firmware_version_release
 0x2000	P	B	10	programblock_climbc_blockb
 0x200a	P	B	10	programblock_climbc_blockc
 0x2014	P	B	14	programblock_strokeb
@@ -862,8 +865,8 @@
 0x1766	T	display 0x4063 (Battery Voltage ADC3)
 0x1772	T	display 0x4067 (Audio A half wave ADC7)
 0x1778	T	display 0x4066 (Audio B half wave ADC6)
-0x177e	T	display 0x406b-some-power-offset
-0x1784	T	display 0x406c-some-power-offset
+0x177e	T	display 0x406b-channela-fet-calibration
+0x1784	T	display 0x406c-channelb-fet-calibration
 0x178c	T	display 0x4061 (Multi Adjust Offset ADC1)
 0x1796	T	display OCDR
 
@@ -871,12 +874,12 @@
 0x17b6	T	clear eeprom with 0 bytes 4-32
 0x17c4	T	write a 0x55 to eeprom[1], write 0x1 to eeprom[6] write 0x1 to eeprom[7]
 
-0x146e	T	0x6b-0x406b-some-power-offset
-0x15c0	T	0x6b-0x406b-some-power-offset
+0x146e	T	0x6b-0x406b-channela-fet-calibration
+0x15c0	T	0x6b-0x406b-channela-fet-calibration
 
-0x558	T	0x6c-0x406c-some-power-offset
-0x1472	T	0x6c-0x406c-some-power-offset
-0x15ea	T	0x6c-0x406c-some-power-offset
+0x558	T	0x6c-0x406c-channelb-fet-calibration
+0x1472	T	0x6c-0x406c-channelb-fet-calibration
+0x15ea	T	0x6c-0x406c-channelb-fet-calibration
 
 0x4d8	T	0x68-0x4068-unknown-something-related-to-buttons
 0x4e6	T	Grab [0x68-0x4068-unknown-something-related-to-buttons] and clear it
