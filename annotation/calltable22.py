@@ -4,10 +4,66 @@ import os
 import argparse
 
 def calltable30(mem):
-   print "Calltable 30 with:"
-   for k,v in mem.items():
-      print ("    %04x %02x"%(k,v))
+#   print "Calltable 30:"
+#   for k,v in mem.items():
+#      print ("    %04x %02x"%(k,v))
 
+   # cf6
+   t=0
+   r30 = mem[0x85]
+   if (r30 == 0):
+      return
+   if (not(r30 & 1)):
+      t=1
+   # d06
+   r26r27 = 0x218
+   r28 = mem[r26r27]
+   if (r28 & 0x80):
+      # calltable_30_set_byte
+      r31 = 0
+      r30 = mem[r26r27]
+      r26r27+=1
+      if (r30 & 0x40):
+         r31 = 1
+      r30 &= 0x3f;
+      r30 += 0x80
+      # e24 stuff didn't add yet
+      r28 = mem[r26r27]
+      print "*** memory[%02x%02x]=%02x"%(r31,r30,r28)
+      return
+   # d10
+   r28&=0xe0;
+   if (r28 == 0x40):
+      # 0x4x_0x5x
+      r28 = mem[r26r27]
+      r28&= 0x1c
+      r18 = r28
+      r28 = mem[r26r27]
+      r26r27+=1
+      r28 &=3
+      r2 = r28
+      r26r27 = r2*256+mem[r26r27]
+      # d66 stuff didn't add yet
+      # d76
+      r28 = r18
+      if (r28 == 0):
+         # dc4
+         r30r31=0x8c
+         if (t==1):
+            r30r31+=256
+         print "*** memory[%04x] = memory[%04x]"%(r30r31,r26r27)
+         return
+      if (r28 == 4):
+         # dd2
+         r30r31=0x8c
+         if (t==1):
+            r30r31+=256
+         print "*** memory[%04x] = memory[%04x]"%(r26r27,r30r31)
+         return
+      
+   print "*** not implemented yet %02x"%(r28)
+   
+      
 def calltable22(program_number):
    print "Calltable 22 with program number %d:"%(program_number)
 
@@ -16,6 +72,7 @@ def calltable22(program_number):
 
    # code be0
    mem = {}
+   mem[0x85] = 1 # temp
    r0 = input_file[program_blockstart]
    while (r0&0xe0):
        r26r27 = 0x218
