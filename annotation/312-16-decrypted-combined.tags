@@ -72,8 +72,8 @@
 0x0b58	L		r26_is_random_between_mem0x8D_and_mem0x8E
 0x0b94	L		endless_loop
 0x0b96	L		rjmp_main
-0x0b98	L		CallTable_22
-0x0cee	L		CallTable_30
+0x0b98	L		CallTable_22_set_current_program_block
+0x0cee	L		CallTable_30_handle_program_block_instruction
 0x11c8	L		initialize_lcd						
 0x11f8	L		set_lcd_position					Parameter r31
 0x121c	L		output_char_to_lcd					Parameter r30
@@ -511,12 +511,14 @@
 0xc0	T	(0x8A-$408A-routine-timer-high)
 0xd6	T	run a timer in 0x8b eight times slower than the routine timer in 0x88/9/a
 0xdc	T	(0x8B-$408b-routine-timer-slower)
-0xe4	T	(0x96-$4096-unknown)
-0xee	T	(0x94-$4094-unknown)
-0xf2	T	(0x95-$4095-unknown)
-0xfa	T	(0x94-$4094-unknown)
-0xfc	T	(0x97-$4097-unknown)
-0x104	T	(0x97-$4097-unknown)
+0xe2	L	is_it_time_to_go_to_next_program_block
+0x10c	L	activate_next_program_block
+0xe4	T	(0x96-$4096-next-program-block-flags)
+0xee	T	(0x94-$4094-next-program-block-timer)
+0xf2	T	(0x95-$4095-next-program-block-timer-max)
+0xfa	T	(0x94-$4094-next-program-block-timer)
+0xfc	T	(0x97-$4097-next-program-block)
+0x104	T	(0x97-$4097-next-program-block)
 
 0x110	T	0x9a or 0x19a - a or b current gate select [bit0 is A, bit1 is B]
 0x116	T	0x90 or 0x190 - a or b current gate value, if it's 1 then look at the off time
@@ -723,7 +725,6 @@
 0x756	T	Mode: User1-7 read blocks from eprom 0x18,0x19,0x1a,0x1b,0x1c,0x1d,0x1e (start vector user1-7)
 0x47c	T	If 0x74-$4074 is a 1 then we want to start Random1 mode (if it's 0 we're not in Random1 mode)
 0x458	T	x84-0x4084-unknown
-0xbc4	T	Grab a byte (current program block?) based on current mode (r18:r0) double it, add it to 0x2000 (or 0x2200)
 0x1476	L	Label_0x1476         bug? the 1.5 bootloader jumps here
 0x4b8	L	Label_0x4b8	     look to see if any buttons are pushed
 
@@ -803,7 +804,7 @@
 0x6a4	T	0x0f-$400f set r15[bit2-unknown] (mode Rhythm, Audio1/2/3)
 0x6ec	T	0x0f-$400f unset r15[bit2-unknown]
 0x722	T	0x0f-$400f set r15[bit2-unknown] (mode Phase1/2/3, User1-7)
-0xd50	T	0x0f-$400f set r15[bit2-unknown]
+0xd50	T	0x0f-$400f set r15[bit1-unknown]
 0x1092	T	0x0f-$400f if r15[bit3-ignore-MA-knob] is set, ignore the MA pot
 
 0xf2a	T	enable int1 (audio A digital input)
@@ -931,3 +932,27 @@
 0x147e	T	Do the same again with the other set of FETs
 0x1484	L	finished_fet_calibration
 0x1492	L	fet_calibration_failed
+
+0xbbe	L	calltable_22_internal_programs
+0xbb8	T	unrecognised program number
+0xc24	L	calltable_22_eeprom_programs
+0xbc4	T	Grab a byte (current program block) based on current mode (r18:r0) double it, add it to 0x2000 (or 0x2200)
+0xbe0	T	r30:r31 now point to programblock (example 0x2070 for toggle (mode 18))
+0xc58	L	calltable_22_return
+0xc14	L	copy_r28_bytes_from_programblock_to_0x218plus
+0xe18	L	instruction_0x8X-0xFF_set_byte
+0xe42	L	calltable_30_exit
+0xd0a	T	look at instructions at 0x218plus
+0xd56	L	instruction_0x40-0x5F
+0xdea	L	instruction_0x20-0x3F_copy_set_of_bytes
+0xd1e	L	instruction_0x00-0x1F_or_0x60_0x7F
+0xd54	L	instruction_0x00-0x0F_or_0x60-0x6F_do_nothing
+0xd24	L	instruction_0x10-0x1F_or_0x70-0x7F_compare_memory_with_0x8c_set_r15[bit1]
+0xdc4	L	instruction_0x40-0x43_write_to_0x8c
+0xdd2	L	instruction_0x44-0x47_read_from_0x8c
+0xde0	L	instruction_0x48-0x4a_div2
+0xdb8	L	instruction_0x4b-0x4f_rand
+0xd9c	T	instruction_0x50-x053_add
+0xda4	T	instruction_0x54-0x57_and
+0xdaa	T	instruction_0x58-0x5a_or
+0xdae	L	instruction_0x5b-0x5f_xor
