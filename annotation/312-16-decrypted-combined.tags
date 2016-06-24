@@ -33,8 +33,6 @@
 
 0x031c	L		set_routine_timer					Parameter r26:r27, returns r0, sets T flag
 0x0352	L		CallTable_29_set_up_r4-14_with_a_and_b_values						Parameter r28:r29
-0x0390	L		load_two_bytes_relative_to_Z		Parameter: r30:r31 (Z), returns r18, r0
-0x03a8	L		sum_two_bytes_from_fla_unknown_0x1fec_plus_offset_at_z_minus_156_and_add_r18		Parameter r18, return value r18
 0x059c	L		update_current_channel_multi_adjust_value
 0x05fe	L		CallTable_18_select_new_mode					Parameter r28:r29
 0x0604	L		Function_0x604
@@ -444,7 +442,6 @@
 0x1fea	P	B	1	Copied to 0x1fe-$41fe-advanced-width
 0x1feb	P	B	1	Copied to 0x1ff-$41ff-advanced-pace
 
-0x1fec	P	W	8	fla_unknown_0x1fec	ref from 0x3be
 0x1ffc	P	B	1	box_model_always_0c
 0x1ffd	P	B	1	firmware_version_major
 0x1ffe	P	B	1	firmware_version_minor
@@ -947,12 +944,71 @@
 0xdea	L	instruction_0x20-0x3F_copy_set_of_bytes
 0xd1e	L	instruction_0x00-0x1F_or_0x60_0x7F
 0xd54	L	instruction_0x00-0x0F_or_0x60-0x6F_do_nothing
-0xd24	L	instruction_0x10-0x1F_or_0x70-0x7F_compare_memory_with_0x8c_set_r15[bit1]
-0xdc4	L	instruction_0x40-0x43_write_to_0x8c
-0xdd2	L	instruction_0x44-0x47_read_from_0x8c
+0xd24	L	instruction_0x10-0x1F_or_0x70-0x7F_compare_memory_with_Store_0x8c_set_r15[bit1]
+0xdc4	L	instruction_0x40-0x43_toStore_0x8c
+0xdd2	L	instruction_0x44-0x47_fromStore_0x8c
 0xde0	L	instruction_0x48-0x4a_div2
 0xdb8	L	instruction_0x4b-0x4f_rand
 0xd9c	T	instruction_0x50-x053_add
 0xda4	T	instruction_0x54-0x57_and
 0xdaa	T	instruction_0x58-0x5a_or
 0xdae	L	instruction_0x5b-0x5f_xor
+0x162	L	update_ramp_intensity_frequency_width
+0x166	T	r30 is 9c(ramp) a5(intensity) ae(frequency) b7(width)
+0x16e	T	r26 is +7 "Select"
+0x174	T	"Select" is xxxx xx00
+0x17c	T	"Select" is xxxx 1100 (so set r18 to B value)
+0x18a	T	"Select" is xxxx 1000 (so set r18 to MA value from 0x20d)
+0x194	T	"Select" is xxxx 0100 (so set r18 to (TBD))
+0x19a	T	set "Value" based on r18 TBD
+0x19e	L	select_not_ending_00
+0x1a6	T	"select" is x 1 1 x x x (!00)
+0x1aa	T	r18 is "rate" of other channel
+0x1b4	T	"select" is x 1 0 x x x (!00)
+0x1be	T	"select" is x 0 1 x x x (!00)
+0x1c4	L	r18_is_rate
+0x1d0	T	r26 is "unknown"
+0x1dc	T	r26 is "Select" &12
+0x1e4	T	"Select" is x x x x 1 1 (!00)
+0x1e8	T	r18 is "min" of other channel
+0x1f2	T	"Select" is x x x x 1 0 (!00)
+0x1fc	T	"Select" is x x x x 0 1 (!00)
+0x206	T	set "min"
+0x208	T	r26 is "value"
+0x20a	T	r28 is "unknown4"
+0x21e	T	r28 is "min"
+0x226	T	r28 is "max"
+0x22e	L	value_has_reached_min
+0x230	T	set "value" to "min" (because "action at min" is 0xfc (stop) done
+0x232	T	r26 is "action at min"
+0x23e	T	set "value" to "max" (because "action at min" is 0xfd (goto-max) done
+0x25c	L	negate_unknown4_done
+0x26a	T	r26 is from "action at min"(hit min) or "action at max"(hit max)
+0x274	T	"action at max"
+0x280	L	value_has_reached_max
+0x282	T	set "value" to "max" and as long as "action at max" is 0xfc (at-max-stop) done
+0x292	T	set "value" to "min" (because "action at max" is 0xfd (at-max-goto-min) done
+0x248	T	because "action at min/max" is 0xfe xor [gate value] with 6 and negate "unknown4" done
+0x25e	T	because "action at min/max" is 0xff negate "unknown4" done
+0x164	L	next_block_to_update
+0x394	T	r30 is 9c(ramp) a5(intensity) ae(frequency) b7(width)
+0x396	T	r30 is 0(ramp) 9(intensity) 12(frequency) 1b(width)
+0x398	T	r30 is 0(ramp) 2(intensity) 4(frequency) 6(width)
+0x39e	T	r30r31 is 1f8(ramp) 1fa(intensity) 1fc(frequency) 1fe(width)
+0x0390	L	get_advanced_parameters		Parameter: r30:r31 (Z), returns r18, r0
+0x3aa	T	r30 is 9c(ramp) a5(intensity) ae(frequency) b7(width)
+0x3ac	T	r30 is 0(ramp) 9(intensity) 12(frequency) 1b(width)
+0x3ae	T	r30 is 0(ramp) 4(intensity) 9(frequency) d(width)
+0x3b8	T	r30 is 0(ramp) 4(intensity) 8(frequency) c(width)
+0x3be	T	look at 0x1fec(ramp 205-r18-1) 0x1ff0(intensity 165-r18-1) 0x1ff4 (frequency 15-r18+6) 0x1ff8(width 70-r18+6)
+0x3c6	T	r18 = (2nd byte - r18) + first byte
+0x1fec	P	B	2	ramp-range
+0x1fee	P	B	2	fla_unknown_0x1fee
+0x1ff0	P	B	2	intensity-range
+0x1ff2	P	B	2	fla_unknown_0x1ff2
+0x1ff4	P	B	2	frequency-range
+0x1ff6	P	B	2	fla_unknown_0x1ff6
+0x1ff8	P	B	2	width-range
+0x1ffa	P	B	2	fla_unknown_0x1ffa
+0x1ffc	P	B	2	fla_unknown_0x1ffc
+0x03a8	L	dosomethingstrangewithr18		Parameter r18, return value r18
