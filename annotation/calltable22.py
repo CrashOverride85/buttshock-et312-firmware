@@ -3,6 +3,22 @@
 import os
 import argparse
 
+# hardcoded program numbers
+# waves 11 (12 split)
+# stroke 3 (4 split)
+# climb 5 (8 split)
+# combo 13 (33 split)
+# intense 14 (2 split)
+# rhythm 15 (then 16 then 17)
+# audio 23
+# audio3 34
+# random2 32
+# toggle 18 (then 19)
+# orgasm 24
+# torment 28
+# phase 20/21/35
+# phase3 22
+
 def calltable30(mem):
 #   print "Calltable 30:"
 #   for k,v in mem.items():
@@ -58,7 +74,24 @@ def calltable30(mem):
          r30r31=0x8c
          if (t==1):
             r30r31+=256
-         print "*** memory[%04x] = memory[%04x]"%(r26r27,r30r31)
+         print "*** memory[%04x]=memory[%04x]"%(r26r27,r30r31)
+         return
+      if (r28 == 8):
+         # 0x48-0x4a
+         print "*** memory[%04x]/=2"%(r26r27)
+         return
+      if (r28 == 0xc):
+         # 0x4b-0x4f
+         print "*** memory[%04x]=rand(memory[008d],memory[008e])"%(r26r27)
+         return
+
+      oldr26r27 = r26r27
+      r26r27+=1
+      r2 = mem[0x21a]
+      if (r28 == 0x10):
+         r18 += r2
+         r26r27-=1
+         print "*** memory[%04x]=memory[%04x]+%02x"%(r26r27,oldr26r27,r18)
          return
       
    print "*** not implemented yet %02x"%(r28)
