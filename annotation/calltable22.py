@@ -19,6 +19,12 @@ import argparse
 # phase 20/21/35
 # phase3 22
 
+def addresstostring(loc):
+   s = "%04x"%(loc)
+   if loc in memory_definitions:
+      s += " "+memory_definitions[loc]
+   return s
+
 def calltable30(mem):
 #   print "Calltable 30:"
 #   for k,v in mem.items():
@@ -45,7 +51,7 @@ def calltable30(mem):
       r30 += 0x80
       # e24 stuff didn't add yet
       r28 = mem[r26r27]
-      print "*** memory[%02x%02x]=%02x"%(r31,r30,r28)
+      print "memory[%s]=%02x"%(addresstostring(r31*256+r30),r28)
       return
    # d10
    r28&=0xe0;
@@ -67,22 +73,22 @@ def calltable30(mem):
          r30r31=0x8c
          if (t==1):
             r30r31+=256
-         print "*** memory[%04x] = memory[%04x]"%(r30r31,r26r27)
+         print "memory[%s]=memory[%s]"%(addresstostring(r30r31),addresstostring(r26r27))
          return
       if (r28 == 4):
          # dd2
          r30r31=0x8c
          if (t==1):
             r30r31+=256
-         print "*** memory[%04x]=memory[%04x]"%(r26r27,r30r31)
+         print "memory[%s]=memory[%s]"%(addresstostring(r26r27),addresstostring(r30r31))
          return
       if (r28 == 8):
          # 0x48-0x4a
-         print "*** memory[%04x]/=2"%(r26r27)
+         print "memory[%s]/=2"%(addresstostring(r26r27))
          return
       if (r28 == 0xc):
          # 0x4b-0x4f
-         print "*** memory[%04x]=rand(memory[008d],memory[008e])"%(r26r27)
+         print "memory[%s]=rand(memory[%s],memory[%s])"%(addresstostring(r26r27),addresstostring(0x8d),addresstostring(0x8e))
          return
 
       oldr26r27 = r26r27
@@ -91,7 +97,7 @@ def calltable30(mem):
       if (r28 == 0x10):
          r18 += r2
          r26r27-=1
-         print "*** memory[%04x]=memory[%04x]+%02x"%(r26r27,oldr26r27,r18)
+         print "memory[%s]=memory[%s]+%02x"%(addresstostring(r26r27),addresstostring(oldr26r27),r18)
          return
       
    print "*** not implemented yet %02x"%(r28)
@@ -138,10 +144,11 @@ def calltable22(program_number):
        calltable30(mem)
        r0 = input_file[program_blockstart]
 
-
 parser = argparse.ArgumentParser()
 parser.add_argument("-i", "--input", dest="input_file",
                     help = "Decrypted firmware to inspect")
+parser.add_argument("-d", "--definitions", dest="definition_file",
+                    help = "Optional memory location definition file (from buttshock-protocol-docs/doc/et312-protocol.org)")
 parser.add_argument("-p", "--program", dest="program_number",
                     help = "Program number to inspect (try 18 for toggle part 1)")
 args = parser.parse_args()
@@ -157,5 +164,18 @@ if not args.program_number:
 with open(args.input_file, "rb") as f:
     input_file = bytearray(f.read())
 
+memory_definitions = {}
+    
+if args.definition_file:
+   import re
+   f = open(args.definition_file,"r")
+   for line in f:
+      definition = re.search('\|\s+\$([0-9a-fA-F]+)[^\|]*\|\s+([^|]*)',line)
+      if definition:
+         memloc = int(definition.group(1),16)
+         if (memloc >= 0x4000 and memloc <= 0x4fff):
+            # print "%04x=%s"%(memloc-0x4000,definition.group(2))
+            memory_definitions[memloc-0x4000]=definition.group(2).strip()
+    
 calltable22(int(args.program_number))
 
