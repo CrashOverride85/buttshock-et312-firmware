@@ -254,35 +254,34 @@
 0x1c44	P	B	1	program_lookup_0x1c3e+6
 0x1c45	P	B	1	program_lookup_0x1c3e+7
 0x1c46	P	B	1	program_lookup_0x1c3e+8_climbb
-0x1c47	P	B	1	program_lookup_0x1c3e+9
-0x1c48	P	B	1	program_lookup_0x1c3e+10
+0x1c47	P	B	1	program_lookup_0x1c3e+9_b_variant_of_6
+0x1c48	P	B	1	program_lookup_0x1c3e+10_b_vairant_of_7
 0x1c49	P	B	1	program_lookup_0x1c3e+11_wavesa
 0x1c4a	P	B	1	program_lookup_0x1c3e+12_wavesb
 0x1c4b	P	B	1	program_lookup_0x1c3e+13_comboa
 0x1c4c	P	B	1	program_lookup_0x1c3e+14_intensea
 0x1c4d	P	B	1	program_lookup_0x1c3e+15_rhythm
-0x1c4e	P	B	1	program_lookup_0x1c3e+16
-0x1c4f	P	B	1	program_lookup_0x1c3e+17
+0x1c4e	P	B	1	program_lookup_0x1c3e+16_rhythm_part2
+0x1c4f	P	B	1	program_lookup_0x1c3e+17_rhythm_part3
 0x1c50	P	B	1	program_lookup_0x1c3e+18_toggle
-0x1c51	P	B	1	program_lookup_0x1c3e+19
+0x1c51	P	B	1	program_lookup_0x1c3e+19_toggle_part2
 0x1c52	P	B	1	program_lookup_0x1c3e+20_phase1a
 0x1c53	P	B	1	program_lookup_0x1c3e+21_phase2a
 0x1c54	P	B	1	program_lookup_0x1c3e+22_phase3
 0x1c55	P	B	1	program_lookup_0x1c3e+23_audio12
 0x1c56	P	B	1	program_lookup_0x1c3e+24_orgasm
-0x1c57	P	B	1	program_lookup_0x1c3e+25
-0x1c58	P	B	1	program_lookup_0x1c3e+26
-0x1c59	P	B	1	program_lookup_0x1c3e+27
-0x1c5A	P	B	1	program_lookup_0x1c3e+28_tormnt
-0x1c5B	P	B	1	program_lookup_0x1c3e+29
-0x1c5C	P	B	1	program_lookup_0x1c3e+30
-0x1c5D	P	B	1	program_lookup_0x1c3e+31
+0x1c57	P	B	1	program_lookup_0x1c3e+25_orgasm_part2
+0x1c58	P	B	1	program_lookup_0x1c3e+26_orgasm_part3
+0x1c59	P	B	1	program_lookup_0x1c3e+27_orgasm_part4
+0x1c5A	P	B	1	program_lookup_0x1c3e+28_torment
+0x1c5B	P	B	1	program_lookup_0x1c3e+29_torment_a_on
+0x1c5C	P	B	1	program_lookup_0x1c3e+30_torment_b_on
+0x1c5D	P	B	1	program_lookup_0x1c3e+31_torment_a_on
 0x1c5E	P	B	1	program_lookup_0x1c3e+32_random2
 0x1c5F	P	B	1	program_lookup_0x1c3e+33_combob
 0x1c60	P	B	1	program_lookup_0x1c3e+34_audio3
 0x1c61	P	B	1	program_lookup_0x1c3e+35_phase2b
-0x1c62	P	B	6	program_lookup_0x1c3e+36
-0x1c68	P	W	4	FFFF
+0x1c62	P	W	7	FFFF
 0x1c70	P	W	40 	CallTable
 0x1cc0	P	W	4	FFFF
 0x1cc8	P	6	1	00-Shut Off Power!!
@@ -465,7 +464,8 @@
 0x20Bc	P	B	20	programblock_orgasm
 0x20d0	P	B	24	programblock_orgasm_blockb
 0x20e8	P	B	12	programblock_orgasm_blockd
-0x20f4	P	B	8	unknown
+0x20f4	P	B	4	programblock_program1
+0x20f8	P	B	4	unknown
 0x20fc	P	B	8	programblock_intenseb
 0x2104	P	B	22	programblock_climbc_blockc
 0x211A	P	B	40	programblock_climbc_torment
@@ -479,7 +479,7 @@
 0x21A6	P	B	8	programblock_climba_blockb
 0x21AE	P	B	8	programblock_climba_blockc
 0x21B6	P	B	18	programblock_climbb
-0x21C8	P	W	3717	random_unknown
+0x21C8	P	W	3717	random_unused
 
 0x3ff8	P	S	1	authors_initials
 
@@ -538,8 +538,8 @@
 0x840	T	Call table "display next menu item" caused by button press, updates 0x078-$4078 between range of 0x79 and 0x7a and displays it on first line of lcd
 0x854	T	Call table "previous next menu item" caused by button press, updates 0x078-$4078 between range of 0x79 and 0x7a and displays it on first line of lcd
 0x7c0	T	0x79-$4079-lowest-menu-option = 0x76
-0x7c6	T	0x80-$4080-highest-menu-option = current_top_mode (0x1f3-$41f3)
-0x7cc	T	0x81-$4081-current-menu-option = favourite_mode (0x1f7-$41f7)
+0x7c6	T	0x7a-$407a-highest-menu-option = current_top_mode (0x1f3-$41f3)
+0x7cc	T	0x78-$4081-current-menu-option = favourite_mode (0x1f7-$41f7) 
 0x8aa	T	Set min/current menu item to split_mode_number_a, max menu item to 0x7e, buttons up/down call next_mode, previous_mode
 0x898	T	Menu option 7 selected do this (start ramp up)
 0x8a4	T	Menu option 8 selected do this (set split mode)
@@ -551,7 +551,7 @@
 0x94e	T	Menu option 14 selected do this (show advanced menu)
 0x954	T	Set menu min/current to 210, max to 217
 0x95e	T	Set button actions, exit_advanced, next_menu_item, previous_menu_item, exit_menu
-0x9a8	T	Edit the advanced option chosen in 0x81-$4081-current-menu-option
+0x9a8	T	Edit the advanced option chosen in 0x78-$4078-current-menu-option 
 0x868	T	Switch to Next Mode, run New Mode
 0x87e	T	Switch to Previous Mode, run New Mode
 0x8dc	T	Set menu min to 6b, max to 6d, current to comm_power-level (0x1f4-$81f4)
@@ -905,7 +905,7 @@
 0x1730	T	look for magic word in eeprom, if eeprom[1]!=0x55 then do factory reset stuff
 0x153e	T	$4070-execute_command and $4071-execute_command = 0xff (no commands)
 0x14ca	T	Read the OCDR byte from 0x3ff and write it to the register (timing, 8MHz)
-0x1ce	T	Set stack to 0x45f
+0x14ce	T	Set stack to 0x45f
 0x14da	T	Set DDRB to 1 0 1 1 1 1 1 1  DDRC to 1 1 1 1 1 1 1 1  DDRD to 1 1 1 1 0 0 1 0
 0x14e6	T	set portd[bit4,bit5,bit6]
 0x14ee	T	disable the Analog Comparator
@@ -967,7 +967,7 @@
 0x1b4	T	"select" is x 1 0 x x x (!00)
 0x1be	T	"select" is x 0 1 x x x (!00)
 0x1c4	L	r18_is_rate
-0x1d0	T	r26 is "unknown"
+0x1d0	T	r26 is "timer"
 0x1dc	T	r26 is "Select" &12
 0x1e4	T	"Select" is x x x x 1 1 (!00)
 0x1e8	T	r18 is "min" of other channel
@@ -975,21 +975,21 @@
 0x1fc	T	"Select" is x x x x 0 1 (!00)
 0x206	T	set "min"
 0x208	T	r26 is "value"
-0x20a	T	r28 is "unknown4"
+0x20a	T	r28 is "increment"
 0x21e	T	r28 is "min"
 0x226	T	r28 is "max"
 0x22e	L	value_has_reached_min
 0x230	T	set "value" to "min" (because "action at min" is 0xfc (stop) done
 0x232	T	r26 is "action at min"
 0x23e	T	set "value" to "max" (because "action at min" is 0xfd (goto-max) done
-0x25c	L	negate_unknown4_done
+0x25c	L	negate_increment_done
 0x26a	T	r26 is from "action at min"(hit min) or "action at max"(hit max)
 0x274	T	"action at max"
 0x280	L	value_has_reached_max
 0x282	T	set "value" to "max" and as long as "action at max" is 0xfc (at-max-stop) done
 0x292	T	set "value" to "min" (because "action at max" is 0xfd (at-max-goto-min) done
-0x248	T	because "action at min/max" is 0xfe xor [gate value] with 6 and negate "unknown4" done
-0x25e	T	because "action at min/max" is 0xff negate "unknown4" done
+0x248	T	because "action at min/max" is 0xfe xor [gate value] with 6 and negate "increment" done
+0x25e	T	because "action at min/max" is 0xff negate "increment" done
 0x164	L	next_block_to_update
 0x394	T	r30 is 9c(ramp) a5(intensity) ae(frequency) b7(width)
 0x396	T	r30 is 0(ramp) 9(intensity) 12(frequency) 1b(width)
