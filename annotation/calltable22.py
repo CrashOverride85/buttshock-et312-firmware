@@ -49,14 +49,19 @@ def calltable30(mem):
          r31 = 1
       r30 &= 0x3f;
       r30 += 0x80
-      # e24 stuff didn't add yet
+      if (t==1 and r30 > 0x8c):
+         r31 = 1
       r28 = mem[r26r27]
       print "memory[%s]=%02x"%(addresstostring(r31*256+r30),r28)
+      mem[r31*256+r30]=r28
       return
    # d10
    r28&=0xe0;
+   if (r28 == 0x20):
+      print "*** not implemented yet (copy a set of bytes) %02x"%(r28)
+      return
    if (r28 == 0x40):
-      # 0x4x_0x5x
+      # 0x4x_0x5x d56
       r28 = mem[r26r27]
       r28&= 0x1c
       r18 = r28
@@ -65,6 +70,8 @@ def calltable30(mem):
       r28 &=3
       r2 = r28
       r26r27 = r2*256+mem[r26r27]
+      if (t==1 and mem[r26r27] > 0x8c):
+         r26r27 &= 0x100;
       # d66 stuff didn't add yet
       # d76
       r28 = r18
@@ -91,15 +98,22 @@ def calltable30(mem):
          print "memory[%s]=rand(memory[%s],memory[%s])"%(addresstostring(r26r27),addresstostring(0x8d),addresstostring(0x8e))
          return
 
-      oldr26r27 = r26r27
-      r26r27+=1
+      # d90
       r2 = mem[0x21a]
       if (r28 == 0x10):
-         r18 += r2
-         r26r27-=1
-         print "memory[%s]=memory[%s]+%02x"%(addresstostring(r26r27),addresstostring(oldr26r27),r18)
-         return
-      
+         print "memory[%s]+=%02x"%(addresstostring(r26r27),r2)
+      if (r28 == 0x14):
+         print "memory[%s]&%02x"%(addresstostring(r26r27),r2)
+      if (r28 == 0x18):
+         print "memory[%s]|%02x"%(addresstostring(r26r27),r2)
+      else:
+         print "memory[%s]^%02x"%(addresstostring(r26r27),r2)
+      return
+
+   r28 = mem[r26r27]
+   if (r28 & 0x10):
+      print "*** not implemented compare with store and set r15[bit1]"
+      return
    print "*** not implemented yet %02x"%(r28)
    
       
@@ -108,6 +122,7 @@ def calltable22(program_number):
 
    program_lookup = input_file[0x1c3e+ program_number]
    program_blockstart = program_lookup * 2 + 0x2000
+   print "blockstart %04x"%(program_blockstart)
 
    # code be0
    mem = {}
