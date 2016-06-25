@@ -102,7 +102,7 @@
 0x19f2	L		write_to_eeprom						Parameter r26:r27 (address), r0 (value)
 0x1a60	L		look_for_keypress						
 0x1a76	L		reset_device
-0x1a7c	L		Function_0x1a7c					Parameters r9,r8,r7
+0x1a7c	L		setup_mark_space_based_on_modulation			Parameters r9,r8,r7
 0x1af2	L		store_z_pointer_at_0x020e_and_move_r13_to_r2_and_set_r18_to_negative_r30
 0x1b00	L		subtract_r31_from_r2_save_r18_at_memory_0x0210_and_r2_at_memory_0x0211
 0x1a06	L		write_r26_to_com_buffer					Parameters r26
@@ -498,7 +498,7 @@
 0x498	T	(0x8E-$408E-random-max)=0x78
 0x4ac	T	0x4184 is random number beween 140 and 184
 0x4a0	T	0x4075-random1-time-to-change-mode is (0x406A-master-timer-msb)+number between 20 and 120
-0x76	T	(0x67-$4067-Audio Input Level A (Half wave) (ADC7))
+0x76	T	(0x67-Audio Input Level A (Half wave) (ADC7))
 0x8a	T	(0x66-$4066-Audio Input Level B (Half wave) (ADC6))
 0xa2	T	increment counter (0x73-$4073-master-timer-lsb)
 0xaa	T	if we rolled over then increment counter (0x6A-$406A-master-timer-msb)
@@ -510,23 +510,26 @@
 0xdc	T	(0x8B-$408b-routine-timer-slower)
 0xe2	L	is_it_time_to_go_to_next_program_block
 0x10c	L	activate_next_program_block
-0xe4	T	(0x96-$4096-next-program-block-flags)
-0xee	T	(0x94-$4094-next-program-block-timer)
-0xf2	T	(0x95-$4095-next-program-block-timer-max)
-0xfa	T	(0x94-$4094-next-program-block-timer)
-0xfc	T	(0x97-$4097-next-program-block)
-0x104	T	(0x97-$4097-next-program-block)
+0x10e	L	is_it_time_to_change_gate
+0x114	T	gate select is a 0, so ignore
+0xe4	T	(0x[01]96-$4096-next-program-block-flags)
+0xee	T	(0x[01]94-$4094-next-program-block-timer)
+0xf2	T	(0x[01]95-$4095-next-program-block-timer-max)
+0xfa	T	(0x[01]94-$4094-next-program-block-timer)
+0xfc	T	(0x[01]97-$4097-next-program-block)
+0x104	T	(0x[01]97-$4097-next-program-block)
 
-0x110	T	0x9a or 0x19a - a or b current gate select [bit0 is A, bit1 is B]
-0x116	T	0x90 or 0x190 - a or b current gate value, if it's 1 then look at the off time
-0x120	T	0x91 or 0x19a - gate select [bit2-gateoff-use-tempo-parameter] is set? r18 = advanced parameter tempo
-0x126	T	0x91 or 0x19a - gate select [bit3-gateoff-use-ma-value] is set? r18 = current_ma_value 
-0x11c	T	0x99 or 0x199 - a or b current gate off time
-0x132	T	current gate was 0(off), so look at 0x98 or 0x198 - a or b current gate on time
-0x134	T	0x91 or 0x19a - gate select [bit5-gateon-use-parameter-effect] is set? r18 = advanced parameter effect
-0x13a	T	0x91 or 0x19a - gate select [bit6-gateon-use-ma-value] is set? r18 = current_ma_value
-0x144	T	0x9b or 0x19b - gate select
-0x150	T	Toggle bit 0 of 0x90 or 0x190 - a or b current gate value (if it was on turn it off, off turn it on)
+0x110	T	0x[0]19a a/b current gate select [bit0 is A, bit1?? is B??]
+0x116	T	0x[01]90 a/b current gate value, if bit 0 is 1 then look at the off time
+0x120	T	0x[01]9a gate select [bit2-gateoff-use-tempo-parameter] is set? r18 = advanced parameter tempo
+0x126	T	0x[01]9a gate select [bit3-gateoff-use-ma-value] is set? r18 = current_ma_value 
+0x11c	T	0x[01]99 a/b current gate off time
+0x132	T	current gate was 0(off), so look at 0x[0]98 a/b current gate on time
+0x134	T	0x[01]9a a/b gate select [bit5-gateon-use-parameter-effect] is set? r18 = advanced parameter effect
+0x13a	T	0x[01]9a a/b gate select [bit6-gateon-use-ma-value] is set? r18 = current_ma_value
+0x144	T	0x[01]9b a/b gate select
+0x150	T	Toggle bit 0 of 0x[01]90 a/b current gate value
+0x29a	T	now do it all again for Channel B instead of A
 
 0x4bc	T	Read hardware 4 buttons, depending on what is pressed do calltable based on r19 (down 0x40) ,r20 (up 0x10),r21 (menu 0x80) ,r22 (ok 0x20)
 0xa36	T	Set button actions, menu=show_main_menu, ok=0x1, up=switch_next_mode, down=switch_previous_mode
@@ -621,12 +624,12 @@
 0x3fe	T	write 6 bytes to $4004 (r4-r9) (or if r16[bit6-which-register-set] isn't set, $400a r10-r14)
 0x436	T	toggle bit r16[bit6-which-register-set] so next time we send the other register set
 0x18fc	T	if we get a 0x_8 0xaa over serial then reset the box
-0x2a4	T	line above is 0x91=$4091-unknown-last-bits-123-of-r5
+0x2a4	T	r26=0x91-unknown. Look at bits 3,2,1 and it it matches r5 (from 0x90) then nothing to do
 0x2c2	T	0x91=$4091-unknown-last-bits-123-of-r5
 0x2cc	T	line above is 0x92=$4092-unknown-last-bits-123-of-r10
 0x2ee	T	0x92=$4092-unknown-last-bits-123-of-r10
 0x2fa	T	(0x0066-$4066-Audio Input Level A (Half wave) (ADC6))
-0x30a	T	0x8F=$408F-unknown
+0x30a	T	0x8F=$408F program to go to on audio trigger
 0x358	T	r5 is a copy of [x90] Channel A: Current Gate Value
 0x35a	T	r6 is a copy of [x9C] Channel A: Mode Switch Ramp Value Counter
 0x35c	T	r7 is a copy of [xA5] Channel A: Current Intensity Modulation Value
@@ -752,10 +755,14 @@
 0x6e6	T	set 0x83=$4083 Output Control Flags all off except bit2-phase-control-3 (audio3 mode)
 0x72c	T	set 0x83=$4083 Output Control Flags all off except bit0-phase-control-0 and bit2-phase-control-2 (phase mode)
 0xe5a	T	set 0x83=$4083 Output Control Flags all off except bit2-phase-control-2
-0x304	T	0x83=$4083 Output Control Flags - unset bit1-mute
-0x6a	T	r4 is copy of [0x83] Output Control Flags - bit0-phase-control-0
-0x2f8	T	r4 is copy of [0x83] Output Control Flags - bit1-mute
-0x302	T	r4 is copy of [0x83] Output Control Flags - unset bit1-mute
+0x304	T	0x83=$4083 Output Control Flags - unset bit1-wait-for-audio-trigger
+0x6a	T	r4 is copy of [0x83] Output Control Flags - bit0-phase-control-0 (if set update MA value)
+0x86	L	main_not_audio_a_mode
+0x9a	L	main_not_audio_b_mode_loop_back_to_main
+0x10a	T	if we're looking at B next program timer, see if we're the same mode as A and if so don't change the mode
+0x2f6	L	audio_might_trigger_program_jump
+0x2f8	T	r4 is copy of [0x83] Output Control Flags - bit1-wait-for-audio-trigger if set then let audio A trigger it off
+0x302	T	r4 is copy of [0x83] Output Control Flags - disable bit1-wait-for-audio-trigger
 0x4ba	T	r4 is copy of [0x83] Output Control Flags - bit5-disable-frontpanel-switches
 0x62e	T	r4 is copy of [0x83] Output Control Flags - unset bit4-unknown-maybe-split
 0x634	T	r4 is copy of [0x83] Output Control Flags - set bit4-unknown-maybe-split
@@ -776,9 +783,9 @@
 
 0x768	T	r26 is 0x7b-$407b-current-mode
 
-0x72	T	is output A in an audio mode (r5[bit6-is-an-audio-mode])? yes then update the intensity_modulation_value
-0x88	T	is output B in an audio mode (r10[bit6-is-an-audio-mode])? yes then update the intensity_modulation_value
-0x2ac	T	r5 is [x90] Channel A: Current Gate Value (bit3)
+0x72	T	is output A in an audio mode (r5[bit6-is-an-audio-mode] from 0x90)? yes then update the intensity_modulation_value
+0x88	T	is output B in an audio mode (r10[bit6-is-an-audio-mode] from 0x190)? yes then update the intensity_modulation_value
+0x2ac	T	r5 is [x90] Channel A: Current Gate Value (bit3) is set then r26=1 otherwise r26=(r5 & 0x6)/2
 0x53a	T	r5 is [x90] Channel A: Current Gate Value (look at bits 0 1 2)
 0xe94	T	r5 is [x90] Channel A: Current Gate Value (bit4)
 0xeb2	T	r5 is [x90] Channel A: Current Gate Value (bit4)
@@ -814,6 +821,7 @@
 
 0x56	T	Main: reset watchdog, send any serial commands queued, handle any serial received, update MA if needed, handle A&B audio inputs, handle timer0 trigerring, goto Main
 0x58	T	is there anything in the com buffer to send? is so go and send it
+0x64	L	main_nothing_to_send
 0x11c4	T	enable RXEN and TXEN in USART control register (no interrupts)
 
 0x11b6	T	set r17[bit5-received-serial-command] 
@@ -883,11 +891,11 @@
 
 0x15bc	T	0x4064-Level Pot A - CBLOCK_POT_A_OFFSET (ADC4)
 0x15d0	T	divide A pot level by power level and add $406b, multiply by ramp value, then same for B pot and $406c, results into 0x205 and 0x206
-0x15b8	L	setup_0x205_x206_based_on_pot_and_ramp_and_levels
+0x15b8	L	setup_dac_stuff_0x205_x206_based_on_pot_and_ramp_and_levels
 
 0x15fe	T	r30 is $4061 Multi Adjust Offset, unless [$4074-random1] says we're in random1 mode,in that case read r30 from ranom byte stored in 0x0184
 0x1642	T	r27=$4086-ma-high-end, r26=$4087-ma-low-end
-0x1650	L	probably_scale_r2_between_r26_and_r27_result_in_r30
+0x1650	L	scale_r2_between_r26_and_r27_result_in_r30
 0x15fc	L	setup_ma_value_in_0x20d_from_knob_and_stuff
 
 0xbce	T	r26 was <128, look at r0=1c3e+(r26).  if 0 then 2000 else 2200,  double r0 and add to 2000 or 2200 also r30:31 is 01c3e+r0
@@ -1012,3 +1020,4 @@
 0x1ffa	P	B	2	fla_unknown_0x1ffa
 0x1ffc	P	B	2	fla_unknown_0x1ffc
 0x03a8	L	dosomethingstrangewithr18		Parameter r18, return value r18
+0x2a2	L	notsurewhatthisdoes
