@@ -941,6 +941,13 @@
 0xbbe	L	calltable_22_internal_programs
 0xbb8	T	unrecognised program number
 0xc24	L	calltable_22_eeprom_programs
+0xc2c	T	0xa0 to 0xbf
+0xc38	L	program_0x80-0x9f
+0xc3e	T	if 0xa0 to 0xbf look at 0100-011f otherwise 0x80-0x9f look at 0020 to 003f
+0xc42	T	get the byte and add 0x120(0xa0-0xbf) or 0x40(0x80-0x9f) then do same stuff as internal programs
+0xc92	L	calltable_22_scratchpad_programs_0xc0-0xdf
+0xc9a	T	mem[0x1d0_space_for_user_routine_scratchpad_b+(program number-0xc0)]+0xc0_space_for_user_routine_scratchpad_a is place to look for program data
+
 0xbc4	T	Grab a byte (current program block) based on current mode (r18:r0) double it, add it to 0x2000 (or 0x2200)
 0xbe0	T	r30:r31 now point to programblock (example 0x2070 for toggle (mode 18))
 0xc58	L	calltable_22_return
