@@ -28,10 +28,6 @@ def addresstostring(loc):
    return s
 
 def calltable30(mem):
-#   print "Calltable 30:"
-#   for k,v in mem.items():
-#      print ("    %04x %02x"%(k,v))
-
    # cf6
    t=0
    r30 = mem[0x85]
@@ -54,13 +50,13 @@ def calltable30(mem):
       if (t==1 and r30 > 0x8c):
          r31 = 1
       r28 = mem[r26r27]
-      print "memory[%s]=%02x"%(addresstostring(r31*256+r30),r28)
+      print ("memory[%s]=%02x"%(addresstostring(r31*256+r30),r28))
       mem[r31*256+r30]=r28
       return
    # d10
    r28&=0xe0;
    if (r28 == 0x20):
-      print "*** not implemented yet (copy a set of bytes) %02x"%(r28)
+      print ("*** not implemented yet (copy a set of bytes) %02x"%(r28))
       return
    if (r28 == 0x40):
       # 0x4x_0x5x d56
@@ -82,51 +78,66 @@ def calltable30(mem):
          r30r31=0x8c
          if (t==1):
             r30r31+=256
-         print "memory[%s]=memory[%s]"%(addresstostring(r30r31),addresstostring(r26r27))
+         print ("memory[%s]=memory[%s]"%(addresstostring(r30r31),addresstostring(r26r27)))
          return
       if (r28 == 4):
          # dd2
          r30r31=0x8c
          if (t==1):
             r30r31+=256
-         print "memory[%s]=memory[%s]"%(addresstostring(r26r27),addresstostring(r30r31))
+         print ("memory[%s]=memory[%s]"%(addresstostring(r26r27),addresstostring(r30r31)))
          return
       if (r28 == 8):
          # 0x48-0x4a
-         print "memory[%s]/=2"%(addresstostring(r26r27))
+         print ("memory[%s]/=2"%(addresstostring(r26r27)))
          return
       if (r28 == 0xc):
          # 0x4b-0x4f
-         print "memory[%s]=rand(memory[%s],memory[%s])"%(addresstostring(r26r27),addresstostring(0x8d),addresstostring(0x8e))
+         print ("memory[%s]=rand(memory[%s],memory[%s])"%(addresstostring(r26r27),addresstostring(0x8d),addresstostring(0x8e)))
          return
 
       # d90
       r2 = mem[0x21a]
       if (r28 == 0x10):
-         print "memory[%s]+=%02x"%(addresstostring(r26r27),r2)
+         print ("memory[%s]+=%02x"%(addresstostring(r26r27),r2))
       if (r28 == 0x14):
-         print "memory[%s]&%02x"%(addresstostring(r26r27),r2)
+         print ("memory[%s]&%02x"%(addresstostring(r26r27),r2))
       if (r28 == 0x18):
-         print "memory[%s]|%02x"%(addresstostring(r26r27),r2)
+         print ("memory[%s]|%02x"%(addresstostring(r26r27),r2))
       else:
-         print "memory[%s]^%02x"%(addresstostring(r26r27),r2)
+         print ("memory[%s]^%02x"%(addresstostring(r26r27),r2))
       return
 
    r28 = mem[r26r27]
    if (r28 & 0x10):
-      print "*** not implemented compare with store and set r15[bit1]"
+      print ("*** not implemented compare with store and set r15[bit1]")
       return
-   print "*** not implemented yet %02x"%(r28)
-      
+   print ("*** not implemented yet %02x"%(r28))
+
+def getbyte(module, byte):
+   if (module<0x80):
+      return input_file[byte]
+   return et312.read(byte)
+   
 def calltable22(program_number):
-   program_lookup = input_file[0x1c3e+ program_number]
-   program_blockstart = program_lookup * 2 + 0x2000
-   print "Module %d is at 0x%04x (flash)"%(program_number,program_blockstart)
+
+   if (program_number < 0x80):
+      program_lookup = getbyte(program_number,0x1c3e+ program_number)
+      program_blockstart = program_lookup * 2 + 0x2000
+      print ("Module %d is at 0x%04x (flash)"%(program_number,program_blockstart))
+   else:
+      if (program_number < 0xa0):
+         program_lookup = et312.read(0x8020+program_number-0x80)
+         program_blockstart = 0x8040+program_lookup
+      else:
+         program_lookup = et312.read(0x8100+program_number-0xa0)
+         program_blockstart = 0x8100+program_lookup
+      print ("Module %d is at 0x%04x (eeprom)"%(program_number,program_blockstart))
 
    # code be0
    mem = {}
    mem[0x85] = 3 # temp
-   r0 = input_file[program_blockstart]
+   r0 = getbyte(program_number,program_blockstart)
    while (r0&0xe0):
        r26r27 = 0x218
        mem[r26r27] = r0
@@ -150,34 +161,63 @@ def calltable22(program_number):
        # c14 copy_r28_bytes_from_blah
        while (r28 > 0):
            program_blockstart +=1;
-           r0 = input_file[program_blockstart]
+           r0 = getbyte(program_number,program_blockstart)
            mem[r26r27] = r0
            r26r27+=1
            r28-=1
        program_blockstart +=1;
        calltable30(mem)
-       r0 = input_file[program_blockstart]
+       r0 = getbyte(program_number,program_blockstart)
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-i", "--input", dest="input_file",
                     help = "Decrypted firmware to inspect")
+parser.add_argument("-p", "--port", dest="port",
+                    help = "port of ET box to look at user eeprom programs")
 parser.add_argument("-d", "--definitions", dest="definition_file",
                     help = "Optional memory location definition file (from buttshock-protocol-docs/doc/et312-protocol.org)")
 parser.add_argument("-m", "--module", dest="program_number",
                     help = "Module number to inspect (try 18 for Toggle)")
+parser.add_argument("-u", "--usermode", dest="usermode",
+                    help = "User mode to inspect (1-6)")
 args = parser.parse_args()
 
-if not args.input_file:
-   print("ERROR: Input file required to run.")
+if not (args.input_file or args.port):
+   print("ERROR: Input file OR port required to run.")
    parser.print_help()
+   exit
 
-if not args.program_number:
+if (args.input_file and not args.program_number):
    print("ERROR: Module number required to run.")
    parser.print_help()
-   
-with open(args.input_file, "rb") as f:
-    input_file = bytearray(f.read())
+   exit
 
+if (args.port and not (args.usermode or args.program_number)):
+   print("ERROR: User mode or module required to run.")
+   parser.print_help()
+   exit
+   
+if (args.input_file):
+   with open(args.input_file, "rb") as f:
+      input_file = bytearray(f.read())
+   program = int(args.program_number)
+
+if (args.port):
+   import sys
+   sys.path.append("../../buttshock-py/")
+   import buttshock
+   et312 = buttshock.ButtshockET312SerialSync(args.port)
+   try:
+      et312.perform_handshake()
+   except buttshock.ButtshockError as e:
+      print("Handshake failed")
+      exit
+   if (args.usermode):
+      program = et312.read(0x8017+int(args.usermode))
+      print ("user mode %d is module %d"%(int(args.usermode),program))
+   else:
+      program = int(args.program_number)
+            
 memory_definitions = {}
     
 if args.definition_file:
@@ -191,5 +231,10 @@ if args.definition_file:
             # print "%04x=%s"%(memloc-0x4000,definition.group(2))
             memory_definitions[memloc-0x4000]=definition.group(2).strip()
     
-calltable22(int(args.program_number))
+calltable22(program)
 
+if (args.port):
+   et312.write(0x4213, [0])
+   et312.close()
+           
+   
