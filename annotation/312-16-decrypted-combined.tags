@@ -230,7 +230,6 @@
 0x020d	M	B	1	current_multi_adjust_value
 0x020e	M	B	2	channel_b_pwm_mark
 0x0210	M	B	2	channel_b_pwm_space
-0x0212	M	B	1	mem_unknown_0x212
 0x0213	M	B	1	cipher_key
 0x0214	M	B	1	com_buffer_incrementer
 0x0215	M	B	1	power_status_bits
@@ -615,7 +614,6 @@
 0xa4e	T	menu 0xd4 is "depth"
 0xa54	T	menu 0xd6 is "freq"
 0xecc	T	toggle r16[bit0] toggle r16[bit1]
-0x1880	T	if we got a 0x0e we're a slave box, send back a 0x05 and set r16[bit2-we-are-slave]
 0x91e	T	display "Linked" (master)
 0x3d8	T	if r17[bit7] is set we're a linked master
 0x3d4	T	above is x73-$4073-master-timer-lsb, so run this at 244Hz
@@ -623,7 +621,6 @@
 0x3e4	T	$4082-retry-counter.  If we didn't get a 06 back we're meant to retry 4 times then error out
 0x3fe	T	write 6 bytes to $4004 (r4-r9) (or if r16[bit6-which-register-set] isn't set, $400a r10-r14)
 0x436	T	toggle bit r16[bit6-which-register-set] so next time we send the other register set
-0x18fc	T	if we get a 0x_8 0xaa over serial then reset the box
 0x2a4	T	r26=0x91-unknown. Look at bits 3,2,1 and it it matches r5 (from 0x90) then nothing to do
 0x2c2	T	0x91=$4091-unknown-last-bits-123-of-r5
 0x2cc	T	line above is 0x92=$4092-unknown-last-bits-123-of-r10
@@ -824,14 +821,6 @@
 0x64	L	main_nothing_to_send
 0x11c4	T	enable RXEN and TXEN in USART control register (no interrupts)
 
-0x11b6	T	set r17[bit5-received-serial-command] 
-0x11c2	T	above set r17[bit5-received-serial-command], set r17[bit6]
-0x1858	L	handle_received_serial_command
-0x1984	T	above unset r17[bit5-received-serial-command]. set r17[bit6]
-0x66	T	if r17[bit5-received-serial-command] is set, call handle_received_serial_command()
-0x117e	T	Already got a command but it's not been handled yet? ignore input (r17[bit5-received-serial-command])
-0x906	T	if we didn't get a command (r17[bit5-received-serial-command] is set), or the command is not "\5" Error 04
-
 0x612	T	set r17[bit0] , set r17[bit1-is-splitmode]
 0x624	T	unset r17[bit1-is-splitmode],  set r17[bit0]
 0x628	T	r26 is 0x78 $4078 (current displayed menu item)
@@ -1028,3 +1017,38 @@
 0x1ffc	P	B	2	fla_unknown_0x1ffc
 0x03a8	L	dosomethingstrangewithr18		Parameter r18, return value r18
 0x2a2	L	notsurewhatthisdoes
+
+0x11b8	L	USART_RX_Complete_done
+0x11c0	L	USART_RX_Complete_error
+0x1198	T	is our receive buffer full? ignore the byte
+0x0212	M	B	1	serial_instruction_expected_length
+0x11a4	T	the high nibble of the first received byte is the length of the serial instruction
+0x11b2	T	look to see if we've received all the bytes we need
+0x11b0	T	add 0x21
+0x11b6	T	set r17[bit5-received-serial-command] as our instruction is complete
+0x11c2	T	above set r17[bit5-received-serial-command], set r17[bit6]
+0x1858	L	handle_received_serial_command
+0x1984	T	above unset r17[bit5-received-serial-command]. set r17[bit6]
+0x66	T	if r17[bit5-received-serial-command] is set, call handle_received_serial_command()
+0x117e	T	Already got a command but it's not been handled yet? ignore input (r17[bit5-received-serial-command])
+0x906	T	if we didn't get a command (r17[bit5-received-serial-command] is set), or the command is not "\5" Error 04
+0x1982	L	handle_received_serial_command_done
+0x185c	T	if r17[bit6] is set then an error happened so send a handshake byte
+0x1864	T	get first byte of serial command (r0 full, r28 lower nibble)
+0x1872	T	it's a single byte command, and if 0x6 or less send handshake byte
+0x187c	T	got 0x7 or 0x8 or 0x9? ignore it
+0x1882	T	if we got a 0x0e we're a slave box, send back a 0x05 and set r16[bit2-we-are-slave]
+0x189a	L	serial_protocol_dead_code
+0x18aa	L	serial_protocol_dead_code_2
+0x18be	L	handle_multibyte_serial_instruction
+0x18c2	L	calculate_checksum
+0x18d0	T	checksum error
+0x18d2	L	serial_protocol_checksum_ok
+0x18d6	L	serial_protocol_command_f_is_key_synchronization
+0x18e8	T	if we ended up with a cipher_key of 0, repeat until we don't
+0x18fc	T	if we get a 0x18 0xaa over serial then reset the box
+0x190c	L	serial_protocol_command_c_is_peek
+0x1940	L	serial_protocol_command_d_is_poke
+0x1958	L	serial_protocol_command_poke_flash
+0x1956	T	if cipher_key is 0 then we've not exchanged keys so don't allow the poke
+
