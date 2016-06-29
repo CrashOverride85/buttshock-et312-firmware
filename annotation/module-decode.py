@@ -3,21 +3,23 @@
 import os
 import argparse
 
-# hardcoded program numbers
-# waves 11 (12 split)
-# stroke 3 (4 split)
-# climb 5 (8 split)
-# combo 13 (33 split)
-# intense 14 (2 split)
-# rhythm 15 (then 16 then 17)
-# audio 23
-# audio3 34
+# These internal module numbers are hardcoded
+# if not split, both A and B are called
+#
+# waves   11 (A) 12 (B)
+# stroke   3 (A)  4 (B)
+# climb    5 (A)  8 (B)
+# combo   13 (A) 33 (B)
+# intense 14 (A)  2 (B)
+# rhythm  15 (then 16 then 17)
+# audio   23
+# audio3  34
 # random2 32
-# toggle 18 (then 19)
-# orgasm 24
+# toggle  18 (then 19)
+# orgasm  24
 # torment 28
-# phase 20/21/35
-# phase3 22
+# phase   20/21/35
+# phase3  22
 
 def addresstostring(loc):
    s = "%04x"%(loc)
@@ -115,18 +117,15 @@ def calltable30(mem):
       print "*** not implemented compare with store and set r15[bit1]"
       return
    print "*** not implemented yet %02x"%(r28)
-   
       
 def calltable22(program_number):
-   print "Calltable 22 with program number %d:"%(program_number)
-
    program_lookup = input_file[0x1c3e+ program_number]
    program_blockstart = program_lookup * 2 + 0x2000
-   print "blockstart %04x"%(program_blockstart)
+   print "Module %d is at 0x%04x (flash)"%(program_number,program_blockstart)
 
    # code be0
    mem = {}
-   mem[0x85] = 1 # temp
+   mem[0x85] = 3 # temp
    r0 = input_file[program_blockstart]
    while (r0&0xe0):
        r26r27 = 0x218
@@ -164,8 +163,8 @@ parser.add_argument("-i", "--input", dest="input_file",
                     help = "Decrypted firmware to inspect")
 parser.add_argument("-d", "--definitions", dest="definition_file",
                     help = "Optional memory location definition file (from buttshock-protocol-docs/doc/et312-protocol.org)")
-parser.add_argument("-p", "--program", dest="program_number",
-                    help = "Program number to inspect (try 18 for toggle part 1)")
+parser.add_argument("-m", "--module", dest="program_number",
+                    help = "Module number to inspect (try 18 for Toggle)")
 args = parser.parse_args()
 
 if not args.input_file:
@@ -173,7 +172,7 @@ if not args.input_file:
    parser.print_help()
 
 if not args.program_number:
-   print("ERROR: Program number required to run.")
+   print("ERROR: Module number required to run.")
    parser.print_help()
    
 with open(args.input_file, "rb") as f:
