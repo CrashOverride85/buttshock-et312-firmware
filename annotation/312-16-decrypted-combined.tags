@@ -133,7 +133,7 @@
 0x007b	M	B	1	current_mode
 0x0080	M	B	3	mem_unknown_0x80				Copied from 0x1f9c
 0x0083	M	B	1	COMM_CONTROL_FLAG				Output Control Flags, Copied from 0x1f9c+3
-0x0084	M	B	1	mem_unknown_0x84				Copied from 0x1f9c+4
+0x0084	M	B	1	module_to_goto_conditionally			Copied from 0x1f9c+4
 0x0085	M	B	1	mem_unknown_0x85-$4085				Copied from 0x1f9c+5
 0x0086	M	B	1	multi_adjust_range_high_end			Copied from 0x1f9c+6
 0x0087	M	B	1	multi_adjust_range_low_end			Copied from 0x1f9c+7
@@ -799,13 +799,15 @@
 
 0x10b2	T	0x0f-$400f r15[bit0-disable-pots]
 0x1648	T	0x0f-$400f r15[bit0-disable-pots]
-0x454	T	0x0f-$400f if r15[bit1-unknown] is set, unset it, and calltable_22 with [0x4084]
-0x424	T	write our registers (r4-9 or r10-r14) to the serial port (or 0's if r15[bit2-unknown] isn't set)
-0x63e	T	0x0f-$400f unset r15[bit2-unknown] 
-0x6a4	T	0x0f-$400f set r15[bit2-unknown] (mode Rhythm, Audio1/2/3)
-0x6ec	T	0x0f-$400f unset r15[bit2-unknown]
-0x722	T	0x0f-$400f set r15[bit2-unknown] (mode Phase1/2/3, User1-7)
-0xd50	T	0x0f-$400f set r15[bit1-unknown]
+0xd26	T	this is really a compare and jump as we'll jump to whatever module is specified in memory location x84
+0x450	L	has_module_asked_us_to_jump_to_new_module
+0x454	T	0x0f-$400f if r15[bit1-start-new-module-form-0084] is set, unset it, and calltable_22 (start new module) with [0x4084]
+0xd50	T	0x0f-$400f set r15[bit1-start-new-module-from-0084]
+0x424	T	write our registers (r4-9 or r10-r14) to the serial port (or 0's if r15[bit2-notforslave] is set)
+0x63e	T	0x0f-$400f unset r15[bit2-notforslave]
+0x6a4	T	0x0f-$400f set r15[bit2-notforslave] (mode Rhythm, Audio1/2/3)
+0x6ec	T	0x0f-$400f unset r15[bit2-notforslave]
+0x722	T	0x0f-$400f set r15[bit2-notforslave] (mode Phase1/2/3, User1-7)
 0x1092	T	0x0f-$400f if r15[bit3-ignore-MA-knob] is set, ignore the MA pot
 
 0xf2a	T	enable int1 (audio A digital input)
