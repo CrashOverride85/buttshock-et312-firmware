@@ -3,8 +3,43 @@
 import os
 import argparse
 
-# These internal module numbers are hardcoded
-# if not split, both A and B are called
+# Each Program on the ET312, either internal or User uploaded is comprised of one or more Modules
+#
+# When a Program is selected the ET box first sets up the 0x80+ and 0x180+ memory locations
+# with stored defaults
+#
+# Next if you chose an internal factory Program (like say "Waves") then the firmware has a
+# hardcoded mapping to what Module will be loaded first for that Program
+#
+# So the Module gets loaded.  This runs a set of Module instructions which is a mini language
+# designed to set up the memory locations 0x80+ and 0x180+ with whatever values are required.
+#
+# For simple Programs they may only contain a single Module.  Once those module instructions
+# have been loaded the box just gets on with running.
+#
+# So here's an example.  Waves loads module 11.  Module 11 contains these instructions:
+# $ python3 module-decode.py -i ../firmware/312-16-decrypted.bin -d ../../buttshock-protocol-docs/doc/et312-protocol.org -m 11
+# Module 11 is at 0x2014 (flash)
+# memory[0086 *Multi Adjust Range Min* (0x0f)]=01
+# memory[0087 *Multi Adjust Range Max* (0xff)]=40
+# memory[00be *Channel A: Current Width Modulation Select* (0x04)]=41
+# memory[00bb *Channel A: Current Width Modulation Increment* (0x01)]=02
+# memory[00b5 *Channel A: Current Frequency Modulation Select* (0x08)]=41
+# memory[00b0 *Channel A: Current Frequency Modulation Max* (0x64)]=80
+#
+# Some Modules will trigger other modules to run.  For example based on a timer, or based on when one of the
+# current widths or frequencies reaches the end of the scale.
+#
+# Some Programs will also load a second Module after the first where they are programs that allow A/B to be
+# split.  So in this example if not split, Waves will also load program 12:
+#
+# Module 12 is at 0x2026 (flash)
+# memory[01bb *Channel B: Current Width Modulation Increment* (0x01)]=03
+# memory[01b0 *Channel B: Current Frequency Modulation Max* (0x64)]=40
+#
+# This program is designed to look at the bytecode of the Module and show what it is doing
+#
+# These internal module numbers are hardcoded. If not split, both A and B are called
 #
 # waves   11 (A) 12 (B)
 # stroke   3 (A)  4 (B)
@@ -14,9 +49,9 @@ import argparse
 # rhythm  15 (then 16 then 17)
 # audio   23
 # audio3  34
-# random2 32
+# random2 32 (then 32 again..)
 # toggle  18 (then 19)
-# orgasm  24
+# orgasm  24 (then 25, 26, 27)
 # torment 28
 # phase   20/21/35
 # phase3  22
