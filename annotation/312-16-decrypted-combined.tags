@@ -35,7 +35,6 @@
 0x0352	L		CallTable_29_set_up_r4-14_with_a_and_b_values						Parameter r28:r29
 0x059c	L		update_current_channel_multi_adjust_value
 0x05fe	L		CallTable_18_select_new_mode					Parameter r28:r29
-0x0604	L		Function_0x604
 0x0790	L		run_call_table						Parameter r30 (0-39) CallTable_31
 0x07bc	L		CallTable_1						noop
 0x07be	L		CallTable_0_5
@@ -57,8 +56,6 @@
 0x0a66	L		CallTable_13_advanced_menu_prev_item
 0x0a94	L		CallTable_14_advanced_menu_next_item
 0x0ab8	L		CallTable_26						Parameter r26
-0x0ac8	L		copy_mem_0x018c_to_mem_0x008c_length_52					CallTable_27
-0x0ad8	L		copy_mem_0x008c_to_mem_0x018c_and_back_length_52		CallTable_25
 0x0aee	L		display_lcd_parameters_as_char							CallTable_19
 0x0afa	L		display_lcd_parameters_as_int							CallTable_20
 0x0b06	L		display_lcd_parameters_as_string						CallTable_21
@@ -84,9 +81,6 @@
 0x13bc	L		divide_word						Parameter r26:r27 r30:r31: r30:r31 /= r26:r27, r26:r27 = r30:r31 % r26:r27
 0x13fa	L		rotate_right						Parameter r30:r31 r26
 0x1496	L		send_data_to_spdr
-0x15a4	L		copy_flash_0x01f3_to_eeprom_0x8_length_12
-0x154c	L		copy_flash_0x1f9c_0x1fa4_to_memory_0x80_0x0188_and_call_CallTable_29	CallTable_24
-0x157a	L		copy_flash_0x1fdc_to_memory_0x1f0_and_copy_eeprom_0x08_to_0x1f3		CallTable_28
 
 0x1676	L		error_handler						CallTable_23_37_38_39
 
@@ -95,8 +89,6 @@
 0x12dc	L		show_Text_on_Display2					Parameter r26
 0x12ec	L		show_Text_on_Display					Parameter r26
 0x1a2e	L		send_com_buffer_to_USART				
-0x1590	L		copy_flash_0x1fdc_to_memory_0x01f0
-0x183e	L		delay_0x183e						Parameter r26
 0x19dc	L		read_from_eeprom					Parameter r26:r27, returns r0
 0x19f2	L		write_to_eeprom						Parameter r26:r27 (address), r0 (value)
 0x1a60	L		look_for_keypress						
@@ -882,7 +874,7 @@
 
 0x15bc	T	0x4064-Level Pot A - CBLOCK_POT_A_OFFSET (ADC4)
 0x15d0	T	divide A pot level by power level and add $406b, multiply by ramp value, then same for B pot and $406c, results into 0x205 and 0x206
-0x15b8	L	setup_dac_stuff_0x205_x206_based_on_pot_and_ramp_and_levels
+0x15b8	L	setup_dac_levels_0x205_x206_based_on_pot_and_ramp_and_levels
 
 0x15fe	T	r30 is $4061 Multi Adjust Offset, unless [$4074-random1] says we're in random1 mode,in that case read r30 from ranom byte stored in 0x0184
 0x160c	T	store MA at location 100+mem[1f0].
@@ -1019,7 +1011,7 @@
 0x1ff6	P	B	2	effect-range
 0x1ff8	P	B	2	width-range
 0x1ffa	P	B	2	pace-range
-0x03a8	L	dosomethingstrangewithr18		Parameter r18, return value r18
+0x03a8	L	dosomethingstrangewithr18advancedparameter		Parameter r18, return value r18
 0x2a2	L	main_notsurewhatthisdoes
 
 0x11b8	L	USART_RX_Complete_done
@@ -1062,3 +1054,16 @@
 0x9b2	T	get current value of the advanced parameter being edited 0x200 current get 0x201 min 0x202 max from table at 0x1fec
 0x9d8	T	frequency advanced parameter works opposite for up/down
 0xa40	L	display_advanced_parameter_value
+
+0x183e	L	rough_delay_no_timer_r26_times_28050ish_clockcycles					Parameter r26
+0x0604	L	Calltable_18_select_new_mode_from_r26							Parameter r26
+0x15a4	L	store_advanced_settings_from_memory_to_eeprom
+0x15a6	T	copy memory 0x01f3 to eeprom 0x8 (12 bytes)
+0x1590	L	get_advanced_settings_from_firmware_defaults_to_memory
+0x1592	T	copy flash 0x1fdc to memory 0x01f0 (16 bytes)
+0x0ac8	L	copy_module_parameters_channel_b_to_channel_a					CallTable_27
+0x0ad8	L	copy_module_parameters_channel_a_to_channel_b					CallTable_25
+0x154c	L	set_initial_module_parameters_and_setup_r4-14_with_a_and_b_values		CallTable_24
+0x154e	T	copy_flash_0x1f9c_0x1fa4_to_memory_0x80_0x0188_and_call_CallTable_29	
+0x157a	L	copy_eeprom_and_flash_defaults_to_memory						CallTable_28
+0x157c	T	copy_flash_0x1fdc_to_memory_0x1f0_and_copy_eeprom_0x08_to_0x1f3		
