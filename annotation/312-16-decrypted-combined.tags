@@ -51,10 +51,9 @@
 0x0988	L		CallTable_12_Activate_split_mode
 0x099a	L		CallTable_6_Set_Power_Level
 0x09a4	L		CallTable_7_Edit_Advanced_Parameter
-0x09e6	L		CallTable_32
+0x09e6	L		CallTable_32_Set_Advanced_Parameter
 0x09fe	L		CallTable_33_start_ramp
 0x0a1c	L		CallTable_4_Exit_Menu
-0x0a40	L		Function_0xa40
 0x0a66	L		CallTable_13_advanced_menu_prev_item
 0x0a94	L		CallTable_14_advanced_menu_next_item
 0x0ab8	L		CallTable_26						Parameter r26
@@ -200,7 +199,7 @@
 0x01ba	M	B	1	channel_b_current_width_modulation_rate
 0x01be	M	B	1	channel_b_current_width_modulation_select
 0x01d0	M	B	32	space_for_user_routine_scratchpad_b
-0x01f0	M	B	1	mem_unknown_0x1f0				Copied from 0x1fdc
+0x01f0	M	B	1	counter_for_MA_averaging_0x1c0-0x1cf		Copied from 0x1fdc
 0x01f1	M	B	1	counter_for_0x22C				Copied from 0x1fdc+1
 0x01f2	M	B	1	counter_for_0x220				Copied from 0x1fdc+2
 0x01f3	M	B	1	current_top_mode				Copied from 0x1fdc+3
@@ -216,11 +215,11 @@
 0x01fd	M	B	1	advanced_parameter_effect
 0x01fe	M	B	1	advanced_parameter_width
 0x01ff	M	B	1	advanced_parameter_pace
-0x0200	M	B	1	mem_unknown_0x200						Referenced by CallTable_7
-0x0201	M	B	1	mem_unknown_0x201
-0x0202	M	B	1	mem_unknown_0x202
+0x0200	M	B	1	value_of_advanced_parameter_being_edited
+0x0201	M	B	1	min_value_of_advanced_parameter_being_edited
+0x0202	M	B	1	max_value_of_advanced_parameter_being_edited
 0x0203	M	B	1	battery_level_percentage
-0x0204	M	B	1	mem_unknown_0x204
+0x0204	M	B	1	pwm_frequency
 0x0205	M	B	1	channel_a_dac_level
 0x0206	M	B	1	channel_b_dac_level
 0x0207	M	B	1	debug_show_module_calltable_22
@@ -424,8 +423,8 @@
 0x1fdb	P	B	1	Initial value of x80-$40bf, x81-$41bf
 
 0x1fdc	P	B	1	Copied to 0x1f0-$41f0-unknown
-0x1fdd	P	B	1	Copied to 0x1f1-$41f1-unknown
-0x1fde	P	B	1	Copied to 0x1f2-$41f2-unknown
+0x1fdd	P	B	1	Copied to 0x1f1-$41f1-serial-output-buffer-pointer
+0x1fde	P	B	1	Copied to 0x1f2-$41f2-serial-input-buffer-pointer
 0x1fdf	P	B	1	Copied to 0x1f3-$41f3-current-top-mode
 0x1fe0	P	B	1	Copied to 0x1f4-$41f4-power-level
 0x1fe1	P	B	1	Copied to 0x1f5-$41f5-split-mode-a
@@ -507,9 +506,9 @@
 0xc0	T	(0x8A-$408A-routine-timer-high)
 0xd6	T	run a timer in 0x8b eight times slower than the routine timer in 0x88/9/a
 0xdc	T	(0x8B-$408b-routine-timer-slower)
-0xe2	L	is_it_time_to_go_to_next_module
-0x10c	L	activate_next_module
-0x10e	L	is_it_time_to_change_gate
+0xe2	L	main_is_it_time_to_go_to_next_module
+0x10c	L	main_activate_next_module
+0x10e	L	main_is_it_time_to_change_gate
 0x114	T	gate select is a 0, so ignore
 0xe4	T	(0x[01]96-$4096-next-module-flags)
 0xee	T	(0x[01]94-$4094-next-module-timer)
@@ -547,7 +546,7 @@
 0x8a4	T	Menu option 8 selected do this (set split mode)
 0x8c2	T	Menu option 9 selected do this (set as favourite)
 0x8d8	T	Menu option 10 selected do this (set power level)
-0x8f8	T	Menu option 11 selected do this (link slave unit) (send 0xe expect a 0x5 set r17[bit7])
+0x8f8	T	Menu option 11 selected do this (link slave unit) (send 0xe expect a 0x5 set r17[bit7-we-are-master])
 0x926	T	Menu option 12 selected do this (save settings)
 0x942	T	Menu option 13 selected do this (reset settings)
 0x94e	T	Menu option 14 selected do this (show advanced menu)
@@ -605,17 +604,20 @@
 0xfde	T	unset r16[bit7-unknown]
 0x1028	T	r16[bit3-unknown]
 0x102c	T	r16[bit5-unknown]
-0x1032	T	set r16[bit7-unknown]
+0x1032	T	set r16[bit7-unknown]. If r10[bit4] is set turn on Q8 else turn on Q7
+0x1034	T	q8
+0x1038	T	q7
+
 0x1044	T	r16[bit3-unknown]
 0x1048	T	r16[bit4-unknown]
-0x104e	T	set r16[bit7-unknown]
+0x104e	T	set r16[bit7-unknown].  If r10[bit4] is set turn on Q7 else turn on Q8
 
 0xa46	T	menu 0xd2 is "ramp level"
 0xa4e	T	menu 0xd4 is "depth"
 0xa54	T	menu 0xd6 is "freq"
 0xecc	T	toggle r16[bit0] toggle r16[bit1]
 0x91e	T	display "Linked" (master)
-0x3d8	T	if r17[bit7] is set we're a linked master
+0x3d8	T	if r17[bit7-we-are-master] is set we're a linked master
 0x3d4	T	above is x73-$4073-master-timer-lsb, so run this at 244Hz
 0x3dc	T	we're a linked master, so if we got a 06 back from the box, send some more registers
 0x3e4	T	$4082-retry-counter.  If we didn't get a 06 back we're meant to retry 4 times then error out
@@ -667,7 +669,7 @@
 0xea8	T	q6
 0xeb4	T	q6
 0xeb8	T	q6
-0xebc	T	q7
+0xebc	T	if r4[bit3] then turn q7 off
 0xec2	T	above is q5
 0xec4	T	q5
 0xf48	T	q6
@@ -675,17 +677,15 @@
 0xf50	T	q8
 0xf68	T	q5
 0xf6c	T	q6
-0xf70	T	q7
-0xf94	T	q7
+0xf70	T	if r4[bit3] then turn q7 on
+0xf94	T	if q7 is on then turn it off
 0xf98	T	q7
-0xf9e	T	above is q8
+0xf9e	T	above is q8, if it's on then turn if off
 0xfa0	T	q8
 0xfac	T	q8
 0xfb0	T	q8
 0xfb6	T	above is q7
 0xfb8	T	q7
-0x1034	T	q8
-0x1038	T	q7
 0x1050	T	q7
 0x1054	T	q8
 0x1440	T	q5=1 q6=1 q8=0 q7=0
@@ -846,12 +846,12 @@
 0x10f0	T	unset r17[bit3-adc-running]
 0x582	T	r17[bit3-adc-running]
 
-0x91c	T	set r17[bit7-master-unit]
+0x91c	T	set r17[bit7-we-are-master]
 
 0xe60	T	sets r17[bit2-timer0-triggered]
-0x9c	L	timer0_has_triggered
+0x9c	L	main_timer0_has_triggered
 0x9e	T	above unsets r17[bit2-timer0-triggered]
-0x6e	T	if r17[bit2-timer0-triggered] goto timer0_has_triggered
+0x6e	T	if r17[bit2-timer0-triggered] goto main_timer0_has_triggered
 0xa0	T	Set UCSRB to RX-complete-interrupt-enable | RX-enable | TX-enable 
 
 0x1726	T	look for key push 1100 (factory reset up+down)
@@ -885,9 +885,12 @@
 0x15b8	L	setup_dac_stuff_0x205_x206_based_on_pot_and_ramp_and_levels
 
 0x15fe	T	r30 is $4061 Multi Adjust Offset, unless [$4074-random1] says we're in random1 mode,in that case read r30 from ranom byte stored in 0x0184
+0x160c	T	store MA at location 100+mem[1f0].
+0x160e	T	increment mem[1f0] which is a counter that runs from c0 to cf
+0x162a	T	add up the last 16 MA values into r30:r31 then divide by 16, multiply by 48, divide by 16
 0x1642	T	r27=$4086-ma-high-end, r26=$4087-ma-low-end
 0x1650	L	scale_r2_between_r26_and_r27_result_in_r30
-0x15fc	L	setup_ma_value_in_0x20d_from_knob_and_stuff
+0x15fc	L	setup_ma_value_in_0x20d_from_knob_after_averaging_and_scaling
 
 0xbce	T	r26 was <128, look at r0=1c3e+(r26).  if 0 then 2000 else 2200,  double r0 and add to 2000 or 2200 also r30:31 is 01c3e+r0
 0xbe2	T	copy r30:r31 to 0x218, if byte &e0!-0 ... lots of stuff
@@ -898,7 +901,7 @@
 0x590	L	display_battery_low
 0x1686	L	display_shut_off_power_and_halt
 0x16de	T	look at $4062-adc2-psu-voltage, if it's greater than 0x92 then error 21, halt (psu voltage too high!)
-0x16b8	L	Function_0x16b8_runs_at_startup_checks_battery_checks_reset_displays_msgs					Parameter r28:r29
+0x16b8	L	startup_checks_battery_checks_reset_displays_msgs					Parameter r28:r29
 0x1700	T	above sets power status bits [bit0] if we have a battery, [bit1] is PSU is connected, next figure out battery percentage
 0x1406	L	FET_calibration_runs_at_startup
 0x1730	T	look for magic word in eeprom, if eeprom[1]!=0x55 then do factory reset stuff
@@ -959,13 +962,13 @@
 0xda4	T	instruction_0x54-0x57_and
 0xdaa	T	instruction_0x58-0x5a_or
 0xdae	L	instruction_0x5b-0x5f_xor
-0x162	L	update_ramp_intensity_frequency_width
+0x162	L	main_update_ramp_and_intensity_and_frequency_and_width
 0x166	T	r30 is 9c(ramp) a5(intensity) ae(frequency) b7(width)
 0x16e	T	r26 is +7 "Select"
 0x174	T	"Select" is xxxx xx00
 0x17c	T	"Select" is xxxx 1100 (so set r18 to B value)
 0x18a	T	"Select" is xxxx 1000 (so set r18 to MA value from 0x20d)
-0x194	T	"Select" is xxxx 0100 (so set r18 to (TBD))
+0x194	T	"Select" is xxxx 0100 (so set r18 to (1f8 or 1fa or 1fc or 1fe) (width))
 0x19a	T	set "Value" based on r18 TBD
 0x19e	L	select_not_ending_00
 0x1a6	T	"select" is x 1 1 x x x (!00)
@@ -1008,17 +1011,16 @@
 0x3b8	T	r30 is 0(ramp) 4(intensity) 8(frequency) c(width)
 0x3be	T	look at 0x1fec(ramp 205-r18-1) 0x1ff0(intensity 165-r18-1) 0x1ff4 (frequency 15-r18+6) 0x1ff8(width 70-r18+6)
 0x3c6	T	r18 = (2nd byte - r18) + first byte
-0x1fec	P	B	2	ramp-range
-0x1fee	P	B	2	fla_unknown_0x1fee
-0x1ff0	P	B	2	intensity-range
-0x1ff2	P	B	2	fla_unknown_0x1ff2
+0x1fec	P	B	2	ramp-level-range
+0x1fee	P	B	2	ramp-time-range
+0x1ff0	P	B	2	intensity-depth-range
+0x1ff2	P	B	2	tempo-range
 0x1ff4	P	B	2	frequency-range
-0x1ff6	P	B	2	fla_unknown_0x1ff6
+0x1ff6	P	B	2	effect-range
 0x1ff8	P	B	2	width-range
-0x1ffa	P	B	2	fla_unknown_0x1ffa
-0x1ffc	P	B	2	fla_unknown_0x1ffc
+0x1ffa	P	B	2	pace-range
 0x03a8	L	dosomethingstrangewithr18		Parameter r18, return value r18
-0x2a2	L	notsurewhatthisdoes
+0x2a2	L	main_notsurewhatthisdoes
 
 0x11b8	L	USART_RX_Complete_done
 0x11c0	L	USART_RX_Complete_error
@@ -1054,3 +1056,9 @@
 0x1958	L	serial_protocol_command_poke_flash
 0x1956	T	if cipher_key is 0 then we've not exchanged keys so don't allow the poke
 
+0xf84	T	set OCF1A in TIFR
+0x1068	T	set OCF1B in TIFR
+0xf76	L	extend_ocr1_by_r23r24_then_done
+0x9b2	T	get current value of the advanced parameter being edited 0x200 current get 0x201 min 0x202 max from table at 0x1fec
+0x9d8	T	frequency advanced parameter works opposite for up/down
+0xa40	L	display_advanced_parameter_value
