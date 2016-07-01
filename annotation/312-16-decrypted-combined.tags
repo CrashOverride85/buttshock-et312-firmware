@@ -132,16 +132,24 @@
 0x0089	M	B	1	routine_timer_mid
 0x008a	M	B	1	routine_timer_high
 0x008b	M	B	1	routine_timer2
-0x008c	M	B	12	mem_unknown_0x8c
+0x008c	M	B	1	module_temporary_byte_store
+0x008d	M	B	1	random_number_min
+0x008e	M	B	1	random_number_max
+0x008f	M	B	1	moduletoloadifaudiotrigger
+0x0090	M	B	8	mem_unknown_0x90
 0x0098	M	B	1	channel_a_current_gate_on_time
 0x0099	M	B	1	channel_a_current_gate_off_time
 0x009a	M	B	1	channel_a_current_select
 0x009b	M	B	1	mem_unknown_0x9b
 0x009c	M	B	1	mode_switch_ramp_value_counter
-0x009d	M	B	1	mem_unknown_0x9d	
-0x009e	M	B	5	mem_unknown_0x9e
+0x009d	M	B	1	mode_switch_ramp_value_min
+0x009e	M	B	1	mode_switch_ramp_value_max
+0x009f	M	B	1	mode_switch_ramp_value_rate
+0x00a0	M	B	1	mode_switch_ramp_value_increment
+0x00a1	M	B	1	mode_switch_ramp_action_at_min
+0x00a2	M	B	1	mode_switch_ramp_action_at_max
 0x00a3	M	B	1	mode_switch_ramp_select
-0x00a4	M	B	1	mem_unknown_0xa4-$40a4
+0x00a4	M	B	1	mode_switch_ramp_timer
 0x00a5	M	B	1	channel_a_current_intensity_modulation_value
 0x00a6	M	B	1	channel_a_current_intensity_modulation_min
 0x00a7	M	B	1	channel_a_current_intensity_modulation_max
@@ -161,7 +169,7 @@
 0x0180	M	B	1	write_lcd_parameter
 0x0181	M	B	1	write_lcd_position
 0x0185	M	B	1	need_to_show_select_mode_message
-0x0186	M	B	7	mem_unknown_0x186
+0x0186	M	B	2	mem_unknown_0x186
 0x0188	M	B	8	mem_unknown_0x188				Copied from 0x1fa4
 0x0190	M	B	1	channel_b_current_gate_value			Copied from 0x1fa4+8, 0 when no output
 0x0191	M	B	1	mem_unknown_0x191				Copied from 0x1fa4+9
@@ -170,11 +178,11 @@
 0x0199	M	B	1	channel_b_current_gate_off_time			Copied from 0x1fa4+17
 0x019a	M	B	1	channel_b_current_gate_select			Copied from 0x1fa4+18
 0x019b	M	B	1	mem_unknown_0x19b				Copied from 0x1fa4+19
-0x019c	M	B	1	mem_unknown_0x19c				Copied from 0x1fa4+20, possibly ramp value
+0x019c	M	B	1	mode_switch_ramp_value_counter_b		Copied from 0x1fa4+20
 0x019d	M	B	1	mem_unknown_0x19d				Copied from 0x1fa4+21
 0x019e	M	B	5	mem_unknown_0x19e				Copied from 0x1fa4+22
-0x01a3	M	B	1	mode_switch_ramp_select_copy
-0x01a4	M	B	1	mem_unknown_0x1a4
+0x01a3	M	B	1	mode_switch_ramp_select_b
+0x01a4	M	B	1	mode_switch_ramp_timer_b
 0x01a5	M	B	1	channel_b_current_intensity_modulation_value
 0x01a6	M	B	1	channel_b_current_intensity_modulation_min
 0x01a7	M	B	1	channel_b_current_intensity_modulation_max
@@ -224,7 +232,7 @@
 0x0213	M	B	1	cipher_key
 0x0214	M	B	1	com_buffer_incrementer
 0x0215	M	B	1	power_status_bits
-0x021a	M	B	1	mem_unknown_0x21a
+0x0218	M	B	8	decoded_module_instruction
 0x0220	M	B	12	com_input_buffer
 0x022C	M	B	12	com_output_buffer
 0x0500	M	B	1	spdr_value_0
