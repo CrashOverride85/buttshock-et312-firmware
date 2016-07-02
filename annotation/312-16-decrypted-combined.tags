@@ -125,7 +125,7 @@
 0x0080	M	B	3	mem_unknown_0x80				Copied from 0x1f9c
 0x0083	M	B	1	COMM_CONTROL_FLAG				Output Control Flags, Copied from 0x1f9c+3
 0x0084	M	B	1	module_to_goto_conditionally			Copied from 0x1f9c+4
-0x0085	M	B	1	mem_unknown_0x85-$4085				Copied from 0x1f9c+5
+0x0085	M	B	1	apply_module_to_which_channels			Copied from 0x1f9c+5
 0x0086	M	B	1	multi_adjust_range_high_end			Copied from 0x1f9c+6
 0x0087	M	B	1	multi_adjust_range_low_end			Copied from 0x1f9c+7
 0x0088	M	B	1	routine_timer_low
@@ -525,7 +525,7 @@
 0x132	T	current gate was 0(off), so look at 0x[0]98 a/b current gate on time
 0x134	T	0x[01]9a a/b gate select [bit5-gateon-use-parameter-effect] is set? r18 = advanced parameter effect
 0x13a	T	0x[01]9a a/b gate select [bit6-gateon-use-ma-value] is set? r18 = current_ma_value
-0x144	T	0x[01]9b a/b gate select
+0x144	T	0x[01]9b is a count of how many gate transitions we've made
 0x150	T	Toggle bit 0 of 0x[01]90 a/b current gate value
 0x29a	T	now do it all again for Channel B instead of A
 
@@ -623,10 +623,10 @@
 0x3e4	T	$4082-retry-counter.  If we didn't get a 06 back we're meant to retry 4 times then error out
 0x3fe	T	write 6 bytes to $4004 (r4-r9) (or if r16[bit6-which-register-set] isn't set, $400a r10-r14)
 0x436	T	toggle bit r16[bit6-which-register-set] so next time we send the other register set
-0x2a4	T	r26=0x91-unknown. Look at bits 3,2,1 and it it matches r5 (from 0x90) then nothing to do
-0x2c2	T	0x91=$4091-unknown-last-bits-123-of-r5
-0x2cc	T	line above is 0x92=$4092-unknown-last-bits-123-of-r10
-0x2ee	T	0x92=$4092-unknown-last-bits-123-of-r10
+0x2a4	T	r26=0x91-unknown. Look at bits 3,2,1 and it it matches r5 (from 0x90) then nothing to do  (something to do with changing A gates)
+0x2c2	T	0x91=$4091-unknown-last-bits-123-of-r5 (something to do with changing A gates)
+0x2cc	T	line above is 0x92=$4092-unknown-last-bits-123-of-r10 (something to do with changing B gates)
+0x2ee	T	0x92=$4092-unknown-last-bits-123-of-r10 (something to do with changing B gates)
 0x2fa	T	(0x0066-$4066-Audio Input Level A (Half wave) (ADC6))
 0x30a	T	0x8F=$408F module to go to on audio trigger
 0x358	T	r5 is a copy of [x90] Channel A: Current Gate Value
@@ -701,25 +701,31 @@
 0xb2e	T	gather all the input ADC lowest bits to make something a bit random
 0xb64	T	0x8D-0x408D-random-min
 0xb66	T	0x8E-0x408E-random-max
-0x644	T	0x85-0x4085-unknown (set to r17 bits 1 and bits 0)
-0x774	T	0x85-0x4085-unknown (set to r17 bits 1 and bits 0)
-0x64c	T	Mode: Waves (blocks 11/12)
-0x65e	T	Mode: Stroke (blocks 3/4)
-0x670	T	Mode: Climb (blocks 5/8)
-0x682	T	Mode: Combo (blocks 13/33)
-0x694	T	Mode: Intense (blocks 14/2)
-0x6aa	T	Mode: Rhythm (blocks 15)
-0x6b4	T	Mode: Audio1 (blocks 23)
-0x6ce	T	Mode: Audio2 (blocks 23)
-0x6d4	T	Mode: Audio3 (blocks 34)
-0x6f2	T	Mode: Random1 (sets 0x74 $4074 random1mode to 1)
-0x6fc	T	Mode: Random2 (blocks 32)
-0x706	T	Mode: Toggle (blocks 18)
-0x710	T	Mode: Orgasm (blocks 24)
-0x71a	T	Mode: Torment (blocks 28)
-0x728	T	Mode: Phase1/2 (blocks 20/21/35)
-0x74a	T	Mode: Phase3 (blocks 22)
+0x644	T	0x85-0x4085-apply-module-to-which-channels (set to r17[bit1-apply-to-channel-b] and r17[bit0-apply-to-channel-a])
+0x774	T	0x85-0x4085-apply-module-to-which-channels (set to r17[bit1-apply-to-channel-b] and r17[bit0-apply-to-channel-a])
+0xd00	T	neither bit1-apply-to-channel-b or bit0-apply-to-channel-a are set, so we've nothing to do
+0xd02	T	"SET" if we are not applying to channel-a (which causes all the instructions to modify memory to te B channel)
+0x64c	T	Mode: Waves (module 11 for A/module 12 for B)
+0x65e	T	Mode: Stroke (module 3 for A/module 4 for B)
+0x670	T	Mode: Climb (module 5 for A/module 8 for B)
+0x682	T	Mode: Combo (module 13 for A/module 33 for B)
+0x694	T	Mode: Intense (module 14 for A/module 2 for B)
+0x6aa	T	Mode: Rhythm (module 15)
+0x6b4	T	Mode: Audio1 (module 23) and an 0x83=$4083 Output Control Flags all off except bit6-mono-mode (audio1 mode)
+0x6e6	T	set 0x83=$4083 Output Control Flags all off except bit2-phase-control-3 (audio3 mode)
+0x72c	T	set 0x83=$4083 Output Control Flags all off except bit0-phase-control-0 and bit2-phase-control-2 (phase mode)
+0xe5a	T	set 0x83=$4083 Output Control Flags all off except bit2-phase-control-2
+0x6ce	T	Mode: Audio2 (module 23) works same as Audio1 except mono mode isn't set
+0x6d4	T	Mode: Audio3 (module 34)
+0x6f2	T	Mode: Random1 (sets 0x74 $4074 random1mode to 1, skip everything else)
+0x6fc	T	Mode: Random2 (module 32)
+0x706	T	Mode: Toggle (module 18)
+0x710	T	Mode: Orgasm (module 24)
+0x71a	T	Mode: Torment (module 28)
+0x728	T	Mode: Phase1/2 (module 20 for A/module 21 for B/also module 35 if phase2)
+0x74a	T	Mode: Phase3 (module 22)
 0x756	T	Mode: User1-7 read blocks from eprom 0x18,0x19,0x1a,0x1b,0x1c,0x1d,0x1e (start vector user1-7)
+0x764	T	we didn't apply stuff to channel b, so grab the 2nd mode and run through the mode selection stuff again with it
 0x47c	T	If 0x74-$4074 is a 1 then we want to start Random1 mode (if it's 0 we're not in Random1 mode)
 0x458	T	x84-0x4084-unknown
 0x1476	L	Label_0x1476         bug? the 1.5 bootloader jumps here
@@ -748,10 +754,6 @@
 0x1aee	T	r14 is min(50,[x1B7]) Channel B: Current Width Modulation Value)
 
 0x354	T	above line copy r4 from [0x83] Output Control Flags
-0x6b4	T	set 0x83=$4083 Output Control Flags all off except bit6-mono-mode (audio1 mode)
-0x6e6	T	set 0x83=$4083 Output Control Flags all off except bit2-phase-control-3 (audio3 mode)
-0x72c	T	set 0x83=$4083 Output Control Flags all off except bit0-phase-control-0 and bit2-phase-control-2 (phase mode)
-0xe5a	T	set 0x83=$4083 Output Control Flags all off except bit2-phase-control-2
 0x304	T	0x83=$4083 Output Control Flags - unset bit1-wait-for-audio-trigger
 0x6a	T	r4 is copy of [0x83] Output Control Flags - bit0-phase-control-0 (if set update MA value)
 0x86	L	main_not_audio_a_mode
@@ -823,17 +825,21 @@
 0x64	L	main_nothing_to_send
 0x11c4	T	enable RXEN and TXEN in USART control register (no interrupts)
 
-0x612	T	set r17[bit0] , set r17[bit1-is-splitmode]
-0x624	T	unset r17[bit1-is-splitmode],  set r17[bit0]
+0x615	T	start module "1" (which just sets 0x90-unknown to 7)
+0x612	T	set r17[bit0-apply-to-channel-a] , set r17[bit1-apply-to-channel-b]
+0x622	L	select_new_mode_is_not_random1
+0x632	L	select_new_mode_is_split
+0x624	T	unset r17[bit1-apply-to-channel-b],  set r17[bit0-apply-to-channel-a]
 0x628	T	r26 is 0x78 $4078 (current displayed menu item)
 0x62c	T	menu item mode is not Split
-0x766	T	toggle r17[bit0] toggle r17[bit1-is-splitmode]
-0x776	T	set r17[bit0], set r17[bit1-is-splitmode]
-0x63a	T	unset r17[bit1-is-splitmode]
-0x6ba	T	if r17[bit0] is set, 0x4190 (B: current gate value) is set to 0 1 0 0 1 1 1 1 audio1
-0x6be	T	if r17[bit1] is set, 0x4090 (A: current gate value) is set to 0 1 0 0 1 1 1 1 audio1
-0x6d6	T	if r17[bit0] is set, 0x4090 (A: current gate value) is set to 0 1 1 0 1 1 1 1 audio3
-0x762	T	r17[bit1-is-splitmode]
+0x766	T	toggle r17[bit0-apply-to-channel-a] toggle r17[bit1-apply-to-channel-b]
+0x776	T	set r17[bit0-apply-to-channel-a], set r17[bit1-apply-to-channel-b]
+0x63a	T	unset r17[bit1-apply-to-channel-b]
+0x6ba	T	if r17[bit0-apply-to-channel-a] is set, 0x4090 (A: current gate value) is set to 0 1 0 0 1 1 1 1 audio1
+0x6be	T	if r17[bit1-apply-to-channel-b] is set, 0x4190 (B: current gate value) is set to 0 1 0 0 1 1 1 1 audio1
+0x6d6	T	if r17[bit0-apply-to-channel-a] is set, 0x4090 (A: current gate value) is set to 0 1 1 0 1 1 1 1 audio3
+0x6dc	T	if r17[bit1-apply-to-channel-b] is set, 0x4190 (B: current gate value) is set to 0 1 1 0 1 1 1 1 audio3
+0x762	T	r17[bit1-apply-to-channel-b]
 
 0x5c2	T	toggle r17[bit4-something-to-do-with-MA]
 0x77a	T	unset r17[bit4-something-to-do-with-MA]
@@ -1064,7 +1070,7 @@
 0xa40	L	display_advanced_parameter_value
 
 0x183e	L	rough_delay_no_timer_r26_times_28050ish_clockcycles					Parameter r26
-0x0604	L	Calltable_18_select_new_mode_from_r26							Parameter r26
+0x0604	L	Calltable_18_select_new_mode_from_4078						Parameter r26
 0x15a4	L	store_advanced_settings_from_memory_to_eeprom
 0x15a6	T	copy memory 0x01f3 to eeprom 0x8 (12 bytes)
 0x1590	L	get_advanced_settings_from_firmware_defaults_to_memory
