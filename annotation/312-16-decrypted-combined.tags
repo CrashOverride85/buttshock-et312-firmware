@@ -727,7 +727,7 @@
 0x756	T	Mode: User1-7 read blocks from eprom 0x18,0x19,0x1a,0x1b,0x1c,0x1d,0x1e (start vector user1-7)
 0x764	T	we didn't apply stuff to channel b, so grab the 2nd mode and run through the mode selection stuff again with it
 0x47c	T	If 0x74-$4074 is a 1 then we want to start Random1 mode (if it's 0 we're not in Random1 mode)
-0x458	T	x84-0x4084-unknown
+0x458	T	x84-0x4084-next-module-if-triggered-from-conditional
 0x1476	L	Label_0x1476         bug? the 1.5 bootloader jumps here
 0x4b8	L	Label_0x4b8	     look to see if any buttons are pushed
 
@@ -754,53 +754,52 @@
 0x1aee	T	r14 is min(50,[x1B7]) Channel B: Current Width Modulation Value)
 
 0x354	T	above line copy r4 from [0x83] Output Control Flags
-0x304	T	0x83=$4083 Output Control Flags - unset bit1-wait-for-audio-trigger
-0x6a	T	r4 is copy of [0x83] Output Control Flags - bit0-phase-control-0 (if set update MA value)
+0x304	T	0x83=$4083 Output Control Flags - unset [bit1-wait-for-audio-trigger]
+0x6a	T	r4 is copy of [0x83] Output Control Flags - r4[bit0-phase-control-0] (if set update MA value)
 0x86	L	main_not_audio_a_mode
 0x9a	L	main_not_audio_b_mode_loop_back_to_main
 0x10a	T	if we're looking at B next module timer, see if we're the same mode as A and if so don't change the mode
 0x2f6	L	audio_might_trigger_module_jump
-0x2f8	T	r4 is copy of [0x83] Output Control Flags - bit1-wait-for-audio-trigger if set then let audio A trigger it off
-0x302	T	r4 is copy of [0x83] Output Control Flags - disable bit1-wait-for-audio-trigger
-0x4ba	T	r4 is copy of [0x83] Output Control Flags - bit5-disable-frontpanel-switches
-0x62e	T	r4 is copy of [0x83] Output Control Flags - unset bit4-unknown-maybe-split
-0x634	T	r4 is copy of [0x83] Output Control Flags - set bit4-unknown-maybe-split
-0x76a	T	r4 is copy of [0x83] Output Control Flags - bit4-unknown-maybe-split
-0x72a	T	r4 is copy of [0x83] Output Control Flags - set all off except bit2-phase-control2, bit0-phase-control0
-0xe9e	T	r4 is copy of [0x83] Output Control Flags - bit3-phase-control-3
-0xeba	T	r4 is copy of [0x83] Output Control Flags - bit3-phase-control-3
-0xeee	T	r4 is copy of [0x83] Output Control Flags - bit3-phase-control-3
-0xf10	T	r4 is copy of [0x83] Output Control Flags - bit3-phase-control-3
-0xf38	T	r4 is copy of [0x83] Output Control Flags - bit2-phase-control-2
-0xf4e	T	r4 is copy of [0x83] Output Control Flags - bit3-phase-control-3
-0xf58	T	r4 is copy of [0x83] Output Control Flags - bit2-phase-control-2
-0xf6e	T	r4 is copy of [0x83] Output Control Flags - bit3-phase-control-3
-0xf8c	T	r4 is copy of [0x83] Output Control Flags - bit3-phase-control-3
-0x1024	T	r4 is copy of [0x83] Output Control Flags - bit2-phase-control-2
-0x1040	T	r4 is copy of [0x83] Output Control Flags - bit2-phase-control-2
-0x10ba	T	r4 is copy of [0x83] bit6-mono-mode.  If we're in audio1 mode, ignore ADC7 and copy ADC6 to ADC7
+0x2f8	T	from [0x83] Output Control Flags - r4[bit1-wait-for-audio-trigger] if set then let audio A trigger it off
+0x302	T	from [0x83] Output Control Flags - disable r4[bit1-wait-for-audio-trigger]
+0x4ba	T	from [0x83] Output Control Flags - r4[bit5-disable-frontpanel-switches]
+0x62e	T	from [0x83] Output Control Flags - unset r4[bit4-unknown-maybe-split]
+0x634	T	from [0x83] Output Control Flags - set r4[bit4-unknown-maybe-split]
+0x76a	T	from [0x83] Output Control Flags - r4[bit4-unknown-maybe-split]
+0x72a	T	from [0x83] Output Control Flags - set all off except r4[bit2-phase-control2], r4 [bit0-phase-control0]
+0xe9e	T	from [0x83] Output Control Flags - r4[bit3-phase-control-3]
+0xeba	T	from [0x83] Output Control Flags - r4[bit3-phase-control-3]
+0xeee	T	from [0x83] Output Control Flags - r4[bit3-phase-control-3]
+0xf10	T	from [0x83] Output Control Flags - r4[bit3-phase-control-3]
+0xf38	T	from [0x83] Output Control Flags - r4[bit2-phase-control-2]
+0xf4e	T	from [0x83] Output Control Flags - r4[bit3-phase-control-3]
+0xf58	T	from [0x83] Output Control Flags - r4[bit2-phase-control-2]
+0xf6e	T	from [0x83] Output Control Flags - r4[bit3-phase-control-3]
+0xf8c	T	from [0x83] Output Control Flags - r4[bit3-phase-control-3]
+0x1024	T	from [0x83] Output Control Flags - r4[bit2-phase-control-2]
+0x1040	T	from [0x83] Output Control Flags - r4[bit2-phase-control-2]
+0x10ba	T	from [0x83] r4[bit6-mono-mode].  If we're in audio1 mode, ignore ADC7 and copy ADC6 to ADC7
 
 0x768	T	r26 is 0x7b-$407b-current-mode
 
 0x72	T	is output A in an audio mode (r5[bit6-is-an-audio-mode] from 0x90)? yes then update the intensity_modulation_value
 0x88	T	is output B in an audio mode (r10[bit6-is-an-audio-mode] from 0x190)? yes then update the intensity_modulation_value
-0x2ac	T	r5 is [x90] Channel A: Current Gate Value (bit3) is set then r26=1 otherwise r26=(r5 & 0x6)/2
-0x53a	T	r5 is [x90] Channel A: Current Gate Value (look at bits 0 1 2)
-0xe94	T	r5 is [x90] Channel A: Current Gate Value (bit4)
-0xeb2	T	r5 is [x90] Channel A: Current Gate Value (bit4)
-0xec8	T	r5 is [x90] Channel A: Current Gate Value (bit3)
-0xf20	T	r5 is [x90] Channel A: Current Gate Value (bit5) - is set when audio3 mode
-0xf22	T	r5 is [x90] Channel A: Current Gate Value (bit7)
-0xf36	T	r5 is [x90] Channel A: Current Gate Value (bit0-output-is-gated)
-0xf47	T	r5 is [x90] Channel A: Current Gate Value (bit4)
-0xf4a	T	r5 is [x90] Channel A: Current Gate Value (bit4)
-0xf56	T	r5 is [x90] Channel A: Current Gate Value (bit0-output-is-gated)
-0xf66	T	r5 is [x90] Channel A: Current Gate Value (bit4) set r16[bit3-unknown]
-0xf6a	T	r5 is [x90] Channel A: Current Gate Value (bit4)
-0x18a6	T	r5 is [x90] Channel A: Current Gate Value (0 when no output)
+0x2ac	T	from [x90] Channel A: Current Gate Value r5[bit3-unknown] is set then r26=1 otherwise r26=(r5 & 0x6)/2
+0x53a	T	from [x90] Channel A: Current Gate Value r5[look at bits 0 1 2]
+0xe94	T	from [x90] Channel A: Current Gate Value r5[bit4-unknown]
+0xeb2	T	from [x90] Channel A: Current Gate Value r5[bit4-unknown]
+0xec8	T	from [x90] Channel A: Current Gate Value r5[bit3-unknown]
+0xf20	T	from [x90] Channel A: Current Gate Value r5[bit5-set-audio3-mode]
+0xf22	T	from [x90] Channel A: Current Gate Value r5[bit7-unknown]
+0xf36	T	from [x90] Channel A: Current Gate Value r5[bit0-output-is-gated)
+0xf47	T	from [x90] Channel A: Current Gate Value r5[bit4-unknown]
+0xf4a	T	from [x90] Channel A: Current Gate Value r5[bit4-unknown]
+0xf56	T	from [x90] Channel A: Current Gate Value r5[bit0-output-is-gated)
+0xf66	T	from [x90] Channel A: Current Gate Value r5[bit4-unknown] set r16[bit3-unknown]
+0xf6a	T	from [x90] Channel A: Current Gate Value r5[bit4-unknown]
 
-0x10b2	T	0x0f-$400f r15[bit0-disable-pots]
-0x1648	T	0x0f-$400f r15[bit0-disable-pots]
+0x10b2	T	0x0f-$400f r15[bit0-disable-adc]
+0x1648	T	0x0f-$400f r15[bit0-disable-adc]
 0xd26	T	this is really a compare and jump as we'll jump to whatever module is specified in memory location x84
 0x450	L	has_module_asked_us_to_jump_to_new_module
 0x454	T	0x0f-$400f if r15[bit1-start-new-module-form-0084] is set, unset it, and calltable_22 (start new module) with [0x4084]
@@ -883,8 +882,8 @@
 0x1472	T	0x6c-0x406c-channelb-fet-calibration
 0x15ea	T	0x6c-0x406c-channelb-fet-calibration
 
-0x4d8	T	0x68-0x4068-unknown-something-related-to-buttons
-0x4e6	T	Grab [0x68-0x4068-unknown-something-related-to-buttons] and clear it
+0x4d8	T	0x68-0x4068-buttons
+0x4e6	T	Grab [0x68-0x4068-buttons] and clear it
 
 0x15bc	T	0x4064-Level Pot A - CBLOCK_POT_A_OFFSET (ADC4)
 0x15d0	T	divide A pot level by power level and add $406b, multiply by ramp value, then same for B pot and $406c, results into 0x205 and 0x206
@@ -1081,3 +1080,7 @@
 0x154e	T	copy_flash_0x1f9c_0x1fa4_to_memory_0x80_0x0188_and_call_CallTable_29	
 0x157a	L	copy_eeprom_and_flash_defaults_to_memory						CallTable_28
 0x157c	T	copy_flash_0x1fdc_to_memory_0x1f0_and_copy_eeprom_0x08_to_0x1f3		
+
+0x322	T	r26 is xxxxxx01 then return r0 = routine timer low and set flag
+0x32c	T	r26 is xxxxxx10 then look at routine timer low lower 3 bits, r0 = routine_timer2 if one in every 8 set, otherwise clear flag
+0x340	T	r26 is xxxxxx11 then look at routine timer low, if 0 then r0 = routine_timer_mid and set, return, otherwise clear flag
