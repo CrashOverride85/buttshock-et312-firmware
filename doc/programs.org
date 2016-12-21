@@ -14,8 +14,10 @@ familiar with the memory layout and refer to
 *** Loading a Program (inbuilt Programs)
 
 - As a user you select a program name using the buttons on the box
+- This runs "calltable 22" with the program number
 - The firmware will set up some defaults into the memory locations 0x80+ (channel A) and 0x180+ (channel B) that are the same for every program
 - The firmware has a hardcoded mapping for the given Program to which Module gets loaded.
+- This runs "calltable 30" with the module number
 - The Instructions from that Module are parsed, one by one.
 - Each Instruction will read or write or manipulate memory (specifically the 0x80+ and 0x180+ locations)
 - A second Module may then get parsed depending on the Program.  This is to handle the complexities of allowing a mode to be "Split" an run different Programs on A and B channels.
@@ -38,7 +40,7 @@ $ python3 module-decode.py -i ../firmware/312-16-decrypted.bin -d ../../buttshoc
 
 *** Defaults
 
-TBD: Explain the default memories here, and all the counters.  
+[[https://github.com/metafetish/buttshock-protocol-docs/blob/master/doc/et312-protocol.org#409c-40bf---main-variables][Main variables]]
 
 *** Example: Program "Waves"
 
@@ -60,6 +62,8 @@ Module 12 contains these Instructions:
 memory[01bb *Channel B: Current Width Modulation Increment* (0x01)]=03
 memory[01b0 *Channel B: Current Frequency Modulation Max* (0x64)]=40
 #+END_EXAMPLE
+
+[[https://github.com/metafetish/buttshock-protocol-docs/blob/master/doc/et312-protocol.org#example][See how this interacts with the defaults to create the actual output.]]
 
 *** Program to Module list
 
