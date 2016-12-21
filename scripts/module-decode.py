@@ -259,7 +259,7 @@ if args.definition_file:
    import re
    f = open(args.definition_file,"r")
    for line in f:
-      definition = re.search('\|\s+\$([0-9a-fA-F]+)[^\|]*\|\s+([^|]*)',line)
+      definition = re.search('\|[^\$]+\$([0-9a-fA-F]+)[^\|]*\|\s+([^|]*)',line)
       if definition:
          memloc = int(definition.group(1),16)
          if (memloc >= 0x4000 and memloc <= 0x4fff):
