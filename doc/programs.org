@@ -15,16 +15,17 @@ familiar with the memory layout and refer to
 
 - As a user you select a program name using the buttons on the box
 - The firmware will set up some defaults into the memory locations 0x80+ (channel A) and 0x180+ (channel B) that are the same for every program
-- The firmware has a mapping for the given Program to which Module gets loaded
+- The firmware has a hardcoded mapping for the given Program to which Module gets loaded.
 - The Instructions from that Module are parsed, one by one.
 - Each Instruction will read or write or manipulate memory (specifically the 0x80+ and 0x180+ locations)
 - A second Module may then get parsed depending on the Program.  This is to handle the complexities of allowing a mode to be "Split" an run different Programs on A and B channels.
+- There's also a little bit of additional hardcoding going on in the firmware to handle the "Random 1" mode and audio modes.
 
-The Modules do not stay running continuously, they are only used to initialize the Program.  Actions that then
-happen (like intensity changes, frequency changes) all take place based on the counters and other memory
+The Modules do not stay running continuously, they are only used to do an set up of memory locations.  Changes that then
+happen (like intensity changes, frequency changes) all take place based on the counters and timers and other memory
 settings.
 
-Modules can set up triggers that can cause Modules to get run at some later point, so for example a Module could set
+Modules can however set up triggers that can cause Modules to get run at some later point, so for example a Module could set
 up one of the timers to run, and when the timer reaches some value it causes a different
 Module to then get loaded.  The "Rhythm" mode for example cycles between three different Modules in this way.
 
@@ -59,4 +60,24 @@ Module 12 contains these Instructions:
 memory[01bb *Channel B: Current Width Modulation Increment* (0x01)]=03
 memory[01b0 *Channel B: Current Frequency Modulation Max* (0x64)]=40
 #+END_EXAMPLE
+
+*** Program to Module list
+
+| Program | Modules                    |
+|---------------+---------------------------------|
+| waves  | 11 (A) 12 (B) |
+| stroke |  3 (A)  4 (B) |
+| climb  |  5 (A)  8 (B) |
+| combo  | 13 (A) 33 (B) |
+| intense| 14 (A)  2 (B) |
+| rhythm | 15 (triggers run 16, 17) |
+| audio  | 23 |
+| audio3 | 34 |
+| random2| 32 (triggers load 32 again) |
+| toggle | 18 (triggers run 19) |
+| orgasm | 24 (triggers run 25, 26, 27) |
+| torment| 28 |
+| phase  | 20 and 21 and 35 |
+| phase3 | 22 |
+| random1| special hardcoded |
 
