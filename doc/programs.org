@@ -42,7 +42,7 @@ $ python3 module-decode.py -i ../firmware/312-16-decrypted.bin -d ../../buttshoc
 
 [[https://github.com/metafetish/buttshock-protocol-docs/blob/master/doc/et312-protocol.org#409c-40bf---main-variables][Main variables]]
 
-*** Example: Program "Waves"
+*** Program "Waves" is Modules 11, 12
 
 If you select Program "Waves" then the firmware loads Module 11.  Module 11 contains these Instructions:
 
@@ -64,6 +64,47 @@ memory[01b0 *Channel B: Current Frequency Modulation Max* (0x64)]=40
 #+END_EXAMPLE
 
 [[https://github.com/metafetish/buttshock-protocol-docs/blob/master/doc/et312-protocol.org#example][See how this interacts with the defaults to create the actual output.]]
+
+*** Program "Stroke" is Modules 3, 4
+
+If you select Program "Stroke" then the firmware loads Module 3.  Module 3 contains these Instructions:
+
+#+BEGIN_EXAMPLE
+memory[00a9 *Channel A: Current Intensity Modulation Step* (0x01)]=02
+memory[00ac *Channel A: Current Intensity Modulation Select* (0x00)]=55
+memory[00b5 *Channel A: Current Frequency Modulation Select* (0x08)]=00
+memory[0086 *Multi Adjust Range Min* (0x0f)]=00
+memory[0087 *Multi Adjust Range Max* (0xff)]=20
+memory[0090 *Channel A: Current Gate Value* (0x06)]=05
+memory[00aa *Channel A: Current Intensity Action at Min* (0xff)]=fe
+memory[00ab *Channel A: Current Intensity Action at Max* (0xff)]=fe
+memory[00be *Channel A: Current Width Modulation Select* (0x04)]=00
+memory[00b7 *Channel A: Current Width Modulation Value* (0x82)]=ff
+#+END_EXAMPLE
+
+So this
+
+- Sets the MA knob range from 0x00 to 0x20
+- A Intensity: changes in steps of *0x02* over the range of minimum to 0xff, using the *244Hz timer*.  Rate is *from the MA knob*.  Minimum (default 0xcd) is set to inverse of the advanced parameter default for Intensity.  When reaching the maximum or minimum the A output *toggles and reverses direction*.
+- A Frequency: changes in steps of 0x01, rate 0x01 in the range 0x09 to 0x64, the frequency *does not change by the MA knob*.
+- A Width: changes in steps of 0x01, rate 0x01 in the range 0x32 to 0xc8, reversing at minimum and maximum.  (Why does it set the starting value to 0xff?).  Does *not use the advance parameter default*.
+
+If the user is not using the Split mode, the firmware will then also load Module 4.
+Module 4 contains these Instructions:
+
+#+BEGIN_EXAMPLE
+memory[01ac *Channel B: Current Intensity Modulation Select* (0x00)]=41
+memory[01a6 *Channel B: Current Intensity Modulation Min* (0xcd)]=e6
+memory[01b7 *Channel B: Current Width Modulation Value* (0x82)]=d8
+memory[01a9 *Channel B: Current Intensity Modulation Step* (0x01)]=01
+#+END_EXAMPLE
+
+This
+
+- B Intensity: changes in steps of 0x01, rate 0x01 in range *0xe6* to 0xff, using the *244Hz timer*.  Rate is *from the MA knob*.  Minimum
+doesn't change.
+- B Width: *follows the inverse of the current MA knob value*.
+- B Frequency: set to the value of the advanced_parameter default
 
 *** Program to Module list
 
