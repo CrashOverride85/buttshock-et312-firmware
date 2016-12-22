@@ -42,19 +42,18 @@ $ python3 module-decode.py -i ../firmware/312-16-decrypted.bin -d ../../buttshoc
 
 Each time a new Program is started the default values get loaded, these set:
 
-- Ramp: runs at rate 0x07 with step 0x01 using the 244Hz timer between 0x9c and 0xff, stopping at the end.  This 
-causes the Program to ramp up to full power over 3 seconds ( (0xff-0x9c) * 244/7 )
+- Ramp: runs at rate 0x07 with step 0x01 using the 244Hz timer between 0x9c and 0xff, stopping at the end.  This causes the Program to ramp up to full power over 3 seconds ( (0xff-0x9c) * 244/7 )
 - Intensity: static with value 0xff.  If changed to use a timer, the defaults set the step to 0x01, rate to 0x01, and range 0xcd to 0xff, reversing at the maximum and minimum.
 - Frequency: set to the value of the MA knob.  If changed to use a timer, the default set the step to 0x01, rate to 0x01, and range 0x09 to 0x64 starting from 0x16, reversing at the maximum and minimum.
 - Width: set to the advanced paramer default.  If changed to use a timer, the default set the step to 0x01, rate to 0x01, and range 0x32 to 0xc8 starting from 0x82, reversing at the maximum and minimum.
-
-See also: [[https://github.com/metafetish/buttshock-protocol-docs/blob/master/doc/et312-protocol.org#409c-40bf---main-variables][Main variables]]
 
 Module 1 is then always loaded which simply turns on the output gate:
 
 #+BEGIN_EXAMPLE
 memory[0090 *Channel A: Current Gate Value* (0x06)]=07
 #+END_EXAMPLE
+
+See also: [[https://github.com/metafetish/buttshock-protocol-docs/blob/master/doc/et312-protocol.org#409c-40bf---main-variables][Main variables]]
 
 *** Program "Waves" is Modules 11, 12
 
