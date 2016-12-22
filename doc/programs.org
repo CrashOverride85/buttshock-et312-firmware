@@ -14,10 +14,10 @@ familiar with the memory layout and refer to
 *** Loading a Program (inbuilt Programs)
 
 - As a user you select a program name using the buttons on the box
-- This runs "calltable 22" with the program number
+- This runs "calltable 18" with the program number
 - The firmware will set up some defaults into the memory locations 0x80+ (channel A) and 0x180+ (channel B) that are the same for every program
 - The firmware has a hardcoded mapping for the given Program to which Module gets loaded.
-- This runs "calltable 30" with the module number
+- This runs "calltable 22" with the module number
 - The Instructions from that Module are parsed, one by one.
 - Each Instruction will read or write or manipulate memory (specifically the 0x80+ and 0x180+ locations)
 - A second Module may then get parsed depending on the Program.  This is to handle the complexities of allowing a mode to be "Split" an run different Programs on A and B channels.
@@ -38,9 +38,23 @@ using the firmware image, or by examining the memory on a box.  For example:
 $ python3 module-decode.py -i ../firmware/312-16-decrypted.bin -d ../../buttshock-protocol-docs/doc/et312-protocol.org -m 11 
 #+END_EXAMPLE
 
-*** Defaults
+*** Defaults and Module 1
 
-[[https://github.com/metafetish/buttshock-protocol-docs/blob/master/doc/et312-protocol.org#409c-40bf---main-variables][Main variables]]
+Each time a new Program is started the default values get loaded, these set:
+
+* Ramp: runs at rate 0x07 with step 0x01 using the 244Hz timer between 0x9c and 0xff, stopping at the end.  This 
+causes the Program to ramp up to full power over 3 seconds ( (0xff-0x9c) * 244/7 )
+* Intensity: static with value 0xff.  If changed to use a timer, the defaults set the step to 0x01, rate to 0x01, and range 0xcd to 0xff, reversing at the maximum and minimum.
+* Frequency: set to the value of the MA knob.  If changed to use a timer, the default set the step to 0x01, rate to 0x01, and range 0x09 to 0x64 starting from 0x16, reversing at the maximum and minimum.
+* Width: set to the advanced paramer default.  If changed to use a timer, the default set the step to 0x01, rate to 0x01, and range 0x32 to 0xc8 starting from 0x82, reversing at the maximum and minimum.
+
+See also: [[https://github.com/metafetish/buttshock-protocol-docs/blob/master/doc/et312-protocol.org#409c-40bf---main-variables][Main variables]]
+
+Module 1 is then always loaded which simply turns on the output gate:
+
+#+BEGIN_EXAMPLE
+memory[0090 *Channel A: Current Gate Value* (0x06)]=07
+#+END_EXAMPLE
 
 *** Program "Waves" is Modules 11, 12
 
@@ -101,8 +115,7 @@ memory[01a9 *Channel B: Current Intensity Modulation Step* (0x01)]=01
 
 This
 
-- B Intensity: changes in steps of 0x01, rate 0x01 in range *0xe6* to 0xff, using the *244Hz timer*.  Rate is *from the MA knob*.  Minimum
-doesn't change.
+- B Intensity: changes in steps of 0x01, rate 0x01 in range *0xe6* to 0xff, using the *244Hz timer*.  Rate is *from the MA knob*.  Minimum doesn't change.
 - B Width: *follows the inverse of the current MA knob value*.
 - B Frequency: set to the value of the advanced_parameter default
 
