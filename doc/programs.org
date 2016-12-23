@@ -148,33 +148,300 @@ This sets up:
 
 *** Program Climb is Modules 5, 8
 
+If you select Program "Climb" then the firmware loads Module 5.  Module 5 contains these Instructions:
+
+#+BEGIN_EXAMPLE
+memory[0086 *Multi Adjust Range Min* (0x0f)]=01
+memory[0087 *Multi Adjust Range Max* (0xff)]=64
+memory[00ae *Channel A: Current Frequency Modulation Value* (0x16)]=ff
+memory[00b0 *Channel A: Current Frequency Modulation Max* (0x64)]=ff
+memory[00b2 *Channel A: Current Frequency Modulation Step* (0x01)]=01
+memory[00b3 *Channel A: Current Frequency Modulation Action Min* (0xff)]=06
+memory[00b5 *Channel A: Current Frequency Modulation Select* (0x08)]=41
+#+END_EXAMPLE
+
+If the user is not using the Split mode, the firmware will then also load Module 5 for channel B, then Module 8 which
+together form these Instructions:
+
+#+BEGIN_EXAMPLE
+memory[01ae *Channel B: Current Frequency Modulation Value* (0x16)]=ff
+memory[01b0 *Channel B: Current Frequency Modulation Max* (0x64)]=ff
+memory[01b2 *Channel B: Current Frequency Modulation Step* (0x01)]=01
+memory[01b3 *Channel B: Current Frequency Modulation Action Min* (0xff)]=09
+memory[01b5 *Channel B: Current Frequency Modulation Select* (0x08)]=41
+#+END_EXAMPLE
+
 *** Program Combo is Modules 13, 33
+
+If you select Program "Combo" then the firmware loads Module 13.  Module 13 contains these Instructions:
+
+#+BEGIN_EXAMPLE
+memory[0086 *Multi Adjust Range Min* (0x0f)]=00
+memory[0087 *Multi Adjust Range Max* (0xff)]=40
+memory[009a *Channel A: Current Gate Select* (0x00)]=4a
+memory[00b5 *Channel A: Current Frequency Modulation Select* (0x08)]=02
+memory[00be *Channel A: Current Width Modulation Select* (0x04)]=26
+#+END_EXAMPLE
+
+If the user is not using the Split mode, the firmware will then also load Module 13 for channel B, then Module 33 which
+together form these Instructions:
+
+#+BEGIN_EXAMPLE
+memory[019a *Channel B: Current Gate Select* (0x00)]=4a
+memory[01b2 *Channel B: Current Frequency Modulation Step* (0x01)]=02
+memory[01b5 *Channel B: Current Frequency Modulation Select* (0x08)]=02
+memory[01bb *Channel B: Current Width Modulation Step* (0x01)]=02
+memory[01be *Channel B: Current Width Modulation Select* (0x04)]=26
+#+END_EXAMPLE
 
 *** Program Intense is Modules 14, 2
 
+If you select Program "Intense" then the firmware loads Module 14.  Module 14 contains these Instructions:
+
+#+BEGIN_EXAMPLE
+memory[0086 *Multi Adjust Range Min* (0x0f)]=09
+#+END_EXAMPLE
+
+If the user is not using the Split mode, the firmware will then also load Module 14 for channel B, then Module 2 which
+together form these Instructions:
+
+#+BEGIN_EXAMPLE
+memory[0198 *Channel B: Current Gate OnTime* (0x3e)]=3f
+memory[0199 *Channel B: Current Gate OffTime* (0x3e)]=3f
+memory[019a *Channel B: Current Gate Select* (0x00)]=01
+#+END_EXAMPLE
+
 *** Program Rhythm is Modules 15, 16, 17
 
-*** Program Audio 1 is Module 23
+If you select Program "Rhythm" then the firmware loads Module 15.  Module 15 contains these Instructions:
+
+#+BEGIN_EXAMPLE
+memory[0086 *Multi Adjust Range Min* (0x0f)]=01
+memory[0087 *Multi Adjust Range Max* (0xff)]=17
+memory[0095 *Next module timer max* (0xff)]=1f
+memory[0095 *Next module timer max* (0xff)]=1f
+memory[0096 *Next module flag* (0x00)]=02
+memory[0097 *Next module number* (0x00)]=10
+memory[009a *Channel A: Current Gate Select* (0x00)]=49
+memory[00a5 *Channel A: Current Intensity Modulation Value* (0xff)]=e0
+memory[00a6 *Channel A: Current Intensity Modulation Min* (0xcd)]=e0
+memory[00a9 *Channel A: Current Intensity Modulation Step* (0x01)]=00
+memory[00ab *Channel A: Current Intensity Action at Max* (0xff)]=fd
+memory[00ab *Channel A: Current Intensity Action at Max* (0xff)]=fd
+memory[00ac *Channel A: Current Intensity Modulation Select* (0x00)]=01
+memory[00b7 *Channel A: Current Width Modulation Value* (0x82)]=46
+memory[00be *Channel A: Current Width Modulation Select* (0x04)]=00
+#+END_EXAMPLE
+
+Module 15 triggers Module 16:
+
+#+BEGIN_EXAMPLE
+memory[0097 *Next module number* (0x00)]=11
+memory[00a5 *Channel A: Current Intensity Modulation Value* (0xff)]^01
+memory[00a5 *Channel A: Current Intensity Modulation Value* (0xff)]+=01
+memory[00b7 *Channel A: Current Width Modulation Value* (0x82)]=b4
+#+END_EXAMPLE
+
+Module 16 triggers Module 17:
+
+#+BEGIN_EXAMPLE
+memory[0097 *Next module number* (0x00)]=10
+memory[00b7 *Channel A: Current Width Modulation Value* (0x82)]=46
+#+END_EXAMPLE
 
 *** Program Audio 1 is Module 23
+
+If you select Program "Audio 1" then the firmware loads Module 23.  It also sets up a flag for other
+code that we're in a mono audio mode, and has hardcoded settings for the gate outputs (memory 0x90 and 0x190).
+
+Module 23 contains these Instructions:
+
+#+BEGIN_EXAMPLE
+memory[00b5 *Channel A: Current Frequency Modulation Select* (0x08)]=04
+memory[00be *Channel A: Current Width Modulation Select* (0x04)]=00
+#+END_EXAMPLE
+
+*** Program Audio 2 is Module 23
+
+If you select Program "Audio 2" then the firmware also loads Module 23.  Everything is the same as above for
+"Audio 1" except the flag for mono isn't set.
 
 *** Program Audio 3 is Module 34
 
+If you select Program "Audio 3" then the firmware loads Module 34.  It also has hardcoded settings for the
+gate outputs (memory 0x90 and 0x190) and output control flags 0x83.
+
+Module 34 contains these Instructions:
+
+#+BEGIN_EXAMPLE
+memory[00ae *Channel A: Current Frequency Modulation Value* (0x16)]=0a
+memory[00b5 *Channel A: Current Frequency Modulation Select* (0x08)]=00
+memory[00be *Channel A: Current Width Modulation Select* (0x04)]=00
+#+END_EXAMPLE
+
 *** Program Random 2 is Module 32
+
+If you select Program "Random 2" then the firmware loads Module 32.  Module 32 contains these Instructions:
+
+#+BEGIN_EXAMPLE
+memory[008d Random Number Min]=01
+memory[008e Random Number Max]=04
+memory[01b2 *Channel B: Current Frequency Modulation Step* (0x01)]=rand(memory[008d Random Number Min],memory[008e Random Number Max])
+memory[00a8 *Channel A: Current Intensity Modulation Rate* (0x01)]=rand(memory[008d Random Number Min],memory[008e Random Number Max])
+memory[01a8 *Channel B: Current Intensity Modulation Rate* (0x01)]=rand(memory[008d Random Number Min],memory[008e Random Number Max])
+memory[00b1 *Channel A: Current Frequency Modulation Rate* (0x01)]=rand(memory[008d Random Number Min],memory[008e Random Number Max])
+memory[01b1 *Channel B: Current Frequency Modulation Rate* (0x01)]=rand(memory[008d Random Number Min],memory[008e Random Number Max])
+memory[00ba ]=rand(memory[008d Random Number Min],memory[008e Random Number Max])
+memory[01ba *Channel B: Current Width Modulation Rate* (0x01)]=rand(memory[008d Random Number Min],memory[008e Random Number Max])
+memory[00be *Channel A: Current Width Modulation Select* (0x04)]=01
+memory[00b5 *Channel A: Current Frequency Modulation Select* (0x08)]=02
+memory[00ac *Channel A: Current Intensity Modulation Select* (0x00)]=02
+memory[0196 *Next module flag* (0x00)]=03
+memory[0197 *Next module number* (0x00)]=20
+memory[008d Random Number Min]=05
+memory[008e Random Number Max]=1f
+memory[0195 *Next module timer max* (0xff)]=rand(memory[008d Random Number Min],memory[008e Random Number Max])
+#+END_EXAMPLE
 
 *** Program Toggle is Modules 18, 19
 
+If you select Program "Toggle" then the firmware loads Module 18.  Module 18 contains these Instructions:
+
+#+BEGIN_EXAMPLE
+memory[00b5 *Channel A: Current Frequency Modulation Select* (0x08)]=04
+memory[0096 *Next module flag* (0x00)]=02
+memory[008c Module temporary byte store]=memory[020d *Current Multi Adjust Value / COMM_MULTI_AVG*]
+memory[0095 *Next module timer max* (0xff)]=memory[008c Module temporary byte store]
+memory[0097 *Next module number* (0x00)]=13
+memory[00bf *Channel A: Current Width Modulation Timer* (0x00)]=04
+memory[0087 *Multi Adjust Range Max* (0xff)]=7f
+memory[0090 *Channel A: Current Gate Value* (0x06)]=07
+memory[0190 *Channel B: Current Gate Value* (0 when no output)]=06
+memory[0086 *Multi Adjust Range Min* (0x0f)]=00
+#+END_EXAMPLE
+
 *** Program Orgasm is Modules 24, 25, 26, 27
+
+If you select Program "Toggle" then the firmware loads Module 24.  Module 24 contains these Instructions:
+
+#+BEGIN_EXAMPLE
+memory[00ac *Channel A: Current Intensity Modulation Select* (0x00)]=00
+memory[00b7 *Channel A: Current Width Modulation Value* (0x82)]=32
+memory[00bb *Channel A: Current Width Modulation Step* (0x01)]=04
+memory[00ba ]=01
+memory[00b8 *Channel A: Current Width Modulation Min* (0x32)]=32
+memory[0085 when module loading determines which channels to set (0x03)]=01
+memory[00be *Channel A: Current Width Modulation Select* (0x04)]=01
+memory[00bd *Channel A: Current Width Modulation Action Max* (0xff)]=19
+memory[01be *Channel B: Current Width Modulation Select* (0x04)]=00
+#+END_EXAMPLE
+
+Module 24 triggers Module 25:
+
+#+BEGIN_EXAMPLE
+memory[0085 when module loading determines which channels to set (0x03)]=01
+memory[00bb *Channel A: Current Width Modulation Step* (0x01)]=ff
+memory[00bc *Channel A: Current Width Modulation Action Min* (0xff)]=1a
+memory[01be *Channel B: Current Width Modulation Select* (0x04)]=01
+memory[01bd *Channel B: Current Width Modulation Action Max* (0xff)]=ff
+memory[0085 when module loading determines which channels to set (0x03)]=03
+memory[00b8 *Channel A: Current Width Modulation Min* (0x32)]+=02
+memory[00b8 *Channel A: Current Width Modulation Min* (0x32)]^02
+#+END_EXAMPLE
+
+Module 25 triggers Module 26:
+
+#+BEGIN_EXAMPLE
+memory[0085 when module loading determines which channels to set (0x03)]=01
+memory[00be *Channel A: Current Width Modulation Select* (0x04)]=00
+memory[01bc *Channel B: Current Width Modulation Action Min* (0xff)]=1b
+#+END_EXAMPLE
+
+Module 26 triggers Module 27:
+
+#+BEGIN_EXAMPLE
+memory[0085 when module loading determines which channels to set (0x03)]=01
+memory[00be *Channel A: Current Width Modulation Select* (0x04)]=01
+memory[01be *Channel B: Current Width Modulation Select* (0x04)]=00
+memory[00bb *Channel A: Current Width Modulation Step* (0x01)]=01
+memory[01bb *Channel B: Current Width Modulation Step* (0x01)]=01
+#+END_EXAMPLE
 
 *** Program Torment is Modules 28
 
-*** Program Phase 1 is Modules 20 and 21 and 35
+If you select Program "Torment" then the firmware loads Module 28.  Module 28 contains these Instructions:
+
+#+BEGIN_EXAMPLE
+memory[0085 when module loading determines which channels to set (0x03)]=03
+memory[00ac *Channel A: Current Intensity Modulation Select* (0x00)]=00
+memory[00a5 *Channel A: Current Intensity Modulation Value* (0xff)]=b0
+memory[0090 *Channel A: Current Gate Value* (0x06)]=06
+memory[008d Random Number Min]=05
+memory[008e Random Number Max]=18
+memory[0195 *Next module timer max* (0xff)]=rand(memory[008d Random Number Min],memory[008e Random Number Max])
+memory[0196 *Next module flag* (0x00)]=03
+memory[00ab *Channel A: Current Intensity Action at Max* (0xff)]=1c
+memory[008d Random Number Min]=e0
+memory[008e Random Number Max]=ff
+memory[00a7 *Channel A: Current Intensity Modulation Max* (0xff)]=rand(memory[008d Random Number Min],memory[008e Random Number Max])
+memory[008d Random Number Min]=06
+memory[008e Random Number Max]=3f
+memory[00a8 *Channel A: Current Intensity Modulation Rate* (0x01)]=rand(memory[008d Random Number Min],memory[008e Random Number Max])
+memory[008d Random Number Min]=1d
+memory[008e Random Number Max]=1f
+memory[0197 *Next module number* (0x00)]=rand(memory[008d Random Number Min],memory[008e Random Number Max])
+memory[00ab *Channel A: Current Intensity Action at Max* (0xff)]=ff
+#+END_EXAMPLE
+
+*** Program Phase 1 is Modules 20 and 21
+
+If you select Program "Phase 1" then the firmware loads Module 20.  It also hardcodes the output control
+flags at 0x83.  For Channel B it loads Module 20 and then Module 21
+
+Module 20 contains these Instructions:
+
+#+BEGIN_EXAMPLE
+memory[0086 *Multi Adjust Range Min* (0x0f)]=01
+memory[0087 *Multi Adjust Range Max* (0xff)]=20
+memory[00b5 *Channel A: Current Frequency Modulation Select* (0x08)]=04
+memory[00be *Channel A: Current Width Modulation Select* (0x04)]=00
+memory[00b7 *Channel A: Current Width Modulation Value* (0x82)]=7d
+#+END_EXAMPLE
+
+Module 21 contains these Instructions:
+
+#+BEGIN_EXAMPLE
+memory[00b7 *Channel A: Current Width Modulation Value* (0x82)]=79
+#+END_EXAMPLE
 
 *** Program Phase 2 is Modules 20 and 21 and 35
 
-*** Program Phase 3 is Modules 22
+If you select Program "Phase 1" then the firmware loads Module 20 then 35.  It also hardcodes the output control
+flags at 0x83.  For Channel B it loads Module 20 then 21 then 35. 
+
+Module 35 contains these Instructions:
+
+#+BEGIN_EXAMPLE
+memory[00ac *Channel A: Current Intensity Modulation Select* (0x00)]=25
+#+END_EXAMPLE
+
+*** Program Phase 3 is Module 22
+
+If you select Program "Phase 3" then the firmware loads Module 22.  Module 22 contains these Instructions:
+
+#+BEGIN_EXAMPLE
+memory[0083 *Output Control Flags - COMM_CONTROL_FLAG* (0x00)]=08
+memory[0190 *Channel B: Current Gate Value* (0 when no output)]=a0
+memory[00ac *Channel A: Current Intensity Modulation Select* (0x00)]=01
+memory[0086 *Multi Adjust Range Min* (0x0f)]=cd
+memory[0087 *Multi Adjust Range Max* (0xff)]=d4
+memory[00b5 *Channel A: Current Frequency Modulation Select* (0x08)]=04
+memory[01ac *Channel B: Current Intensity Modulation Select* (0x00)]=09
+#+END_EXAMPLE
 
 *** Program Random 1
+
+This is a special case.
 
 ** Program to Module list
 
@@ -182,9 +449,9 @@ This sets up:
 |---------------+---------------------------------|
 | waves  | 11 (A, B), 12 (B) |
 | stroke |  3 (A, B),  4 (B) |
-| climb  |  5 (A)  8 (B) |
-| combo  | 13 (A) 33 (B) |
-| intense| 14 (A)  2 (B) |
+| climb  |  5 (A, B),  8 (B) |
+| combo  | 13 (A, B), 33 (B) |
+| intense| 14 (A, B),  2 (B) |
 | rhythm | 15 (triggers run 16, 17) |
 | audio  | 23 |
 | audio3 | 34 |
@@ -192,7 +459,8 @@ This sets up:
 | toggle | 18 (triggers run 19) |
 | orgasm | 24 (triggers run 25, 26, 27) |
 | torment| 28 |
-| phase  | 20 and 21 and 35 |
-| phase3 | 22 |
+| phase1 | 20 (A, B), 21 (B) |
+| phase2 | 20 (A, B), 21 (B), 35 (A,B) |
+| phase3 | 22 (A, B)|
 | random1| special hardcoded |
 
