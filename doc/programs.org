@@ -146,12 +146,42 @@ This sets up:
 - B Frequency: changes in steps of 0x01, rate 0x01 in the range 0x09 to 0x64, (the frequency does not change).
 - B Width: changes in steps of 0x01, rate 0x01 in the range 0x32 to 0xc8, reversing at minimum and maximum.  (starting value is 0xd8).  (Does not use the advance parameter default).
 
-*** Program to Module list
+*** Program Climb is Modules 5, 8
 
-| Program | Modules                    |
+*** Program Combo is Modules 13, 33
+
+*** Program Intense is Modules 14, 2
+
+*** Program Rhythm is Modules 15, 16, 17
+
+*** Program Audio 1 is Module 23
+
+*** Program Audio 1 is Module 23
+
+*** Program Audio 3 is Module 34
+
+*** Program Random 2 is Module 32
+
+*** Program Toggle is Modules 18, 19
+
+*** Program Orgasm is Modules 24, 25, 26, 27
+
+*** Program Torment is Modules 28
+
+*** Program Phase 1 is Modules 20 and 21 and 35
+
+*** Program Phase 2 is Modules 20 and 21 and 35
+
+*** Program Phase 3 is Modules 22
+
+*** Program Random 1
+
+** Program to Module list
+
+| Program | Modules used                    |
 |---------------+---------------------------------|
-| waves  | 11 (A) 12 (B) |
-| stroke |  3 (A)  4 (B) |
+| waves  | 11 (A, B), 12 (B) |
+| stroke |  3 (A, B),  4 (B) |
 | climb  |  5 (A)  8 (B) |
 | combo  | 13 (A) 33 (B) |
 | intense| 14 (A)  2 (B) |
