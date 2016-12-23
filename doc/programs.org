@@ -14,14 +14,16 @@ familiar with the memory layout and refer to
 *** Loading a Program (inbuilt Programs)
 
 - As a user you select a program name using the buttons on the box
-- This runs "calltable 18" with the program number
-- The firmware will set up some defaults into the memory locations 0x80+ (channel A) and 0x180+ (channel B) that are the same for every program
-- The firmware has a hardcoded mapping for the given Program to which Module gets loaded.
-- This runs "calltable 22" with the module number
-- The Instructions from that Module are parsed, one by one.
+- This runs "calltable 18" with the Program number
+- The firmware will set up some defaults into the memory locations 0x80+ (channel A) and 0x180+ (channel B) that are the same for every Program
+- Module 1 is loaded for both channel A and channel B
+- The firmware has a code switch statement for the Program to which Module or Modules get loaded
+- This runs "calltable 22" for each Module number
+- The Instructions from that Module are unpacked and parsed, one by one, by "calltable 30"
 - Each Instruction will read or write or manipulate memory (specifically the 0x80+ and 0x180+ locations)
-- A second Module may then get parsed depending on the Program.  This is to handle the complexities of allowing a mode to be "Split" an run different Programs on A and B channels.
-- There's also a little bit of additional hardcoding going on in the firmware to handle the "Random 1" mode and audio modes.
+- There is a bit of added complexity due to the ability to "Split" some Programs
+- There is a bit of additional hardcoding going on in the firmware to handle the "Random 1" mode and audio modes
+- Some other bits of running code check the Program number and do hardcoded tweaks
 
 The Modules do not stay running continuously, they are only used to do an set up of memory locations.  Changes that then
 happen (like intensity changes, frequency changes) all take place based on the counters and timers and other memory
@@ -38,19 +40,27 @@ using the firmware image, or by examining the memory on a box.  For example:
 $ python3 module-decode.py -i ../firmware/312-16-decrypted.bin -d ../../buttshock-protocol-docs/doc/et312-protocol.org -m 11 
 #+END_EXAMPLE
 
+*** Split Programs
+
+Some Programs have the ability to be "Split", where a different Program runs on channel A to channel B.  This causes the Program
+loading code to be a little more complex for both cases.  
+
+- TBD
+
 *** Defaults and Module 1
 
-Each time a new Program is started the default values get loaded, these set:
+Each time a new Program is started the default values get loaded, for both channel A and B these set:
 
 - Ramp: runs at rate 0x07 with step 0x01 using the 244Hz timer between 0x9c and 0xff, stopping at the end.  This causes the Program to ramp up to full power over 3 seconds ( (0xff-0x9c) * 244/7 )
 - Intensity: static with value 0xff.  If changed to use a timer, the defaults set the step to 0x01, rate to 0x01, and range 0xcd to 0xff, reversing at the maximum and minimum.
 - Frequency: set to the value of the MA knob.  If changed to use a timer, the default set the step to 0x01, rate to 0x01, and range 0x09 to 0x64 starting from 0x16, reversing at the maximum and minimum.
 - Width: set to the advanced paramer default.  If changed to use a timer, the default set the step to 0x01, rate to 0x01, and range 0x32 to 0xc8 starting from 0x82, reversing at the maximum and minimum.
 
-Module 1 is then always loaded which simply turns on the output gate:
+Module 1 is then always loaded for both channel A and B which just turns on the output gates:
 
 #+BEGIN_EXAMPLE
 memory[0090 *Channel A: Current Gate Value* (0x06)]=07
+memory[0190 *Channel B: Current Gate Value* (0x06)]=07
 #+END_EXAMPLE
 
 See also: [[https://github.com/metafetish/buttshock-protocol-docs/blob/master/doc/et312-protocol.org#409c-40bf---main-variables][Main variables]]
@@ -68,55 +78,73 @@ memory[00b5 *Channel A: Current Frequency Modulation Select* (0x08)]=41
 memory[00b0 *Channel A: Current Frequency Modulation Max* (0x64)]=80
 #+END_EXAMPLE
 
-If the user is not using the Split mode, for Program "Waves" the firmware will then also load Module 12.
-Module 12 contains these Instructions:
+So this:
+
+- Sets the MA knob range from 0x01 to 0x40
+- A Intensity: static with value 0xff
+- A Frequency: changes in steps of 0x01, rate from MA knob (0x01-0x40), in the range 0x09 to 0x80, using the 244Hz timer, reversing at maximum and maximum.
+- A Width: changes in steps of 0x02, rate from MA knob (0x01-0x40), in the range 0x32 to 0xc8, using the 244Hz timer, reversing at minimum and maximum.
+
+If the user is not using the Split mode, the firmware will then also load Module 11 for channel B, then Module 12 which
+together form these Instructions:
 
 #+BEGIN_EXAMPLE
+memory[01be *Channel B: Current Width Modulation Select* (0x04)]=41
 memory[01bb *Channel B: Current Width Modulation Increment* (0x01)]=03
+memory[01b5 *Channel B: Current Frequency Modulation Select* (0x08)]=41
 memory[01b0 *Channel B: Current Frequency Modulation Max* (0x64)]=40
 #+END_EXAMPLE
 
-[[https://github.com/metafetish/buttshock-protocol-docs/blob/master/doc/et312-protocol.org#example][See how this interacts with the defaults to create the actual output.]]
+So this:
+
+- B Intensity: static with value 0xff
+- B Frequency: changes in steps of 0x01, rate from MA knob (0x01-0x40), in the range 0x09 to 0x40, using the 244Hz timer, reversing at maximum and maximum.
+- B Width: changes in steps of 0x03, rate from MA knob (0x01-0x40), in the range 0x32 to 0xc8, using the 244Hz timer, reversing at minimum and maximum.
 
 *** Program "Stroke" is Modules 3, 4
 
 If you select Program "Stroke" then the firmware loads Module 3.  Module 3 contains these Instructions:
 
 #+BEGIN_EXAMPLE
-memory[00a9 *Channel A: Current Intensity Modulation Step* (0x01)]=02
-memory[00ac *Channel A: Current Intensity Modulation Select* (0x00)]=55
-memory[00b5 *Channel A: Current Frequency Modulation Select* (0x08)]=00
 memory[0086 *Multi Adjust Range Min* (0x0f)]=00
 memory[0087 *Multi Adjust Range Max* (0xff)]=20
-memory[0090 *Channel A: Current Gate Value* (0x06)]=05
+memory[00a9 *Channel A: Current Intensity Modulation Step* (0x01)]=02
 memory[00aa *Channel A: Current Intensity Action at Min* (0xff)]=fe
 memory[00ab *Channel A: Current Intensity Action at Max* (0xff)]=fe
-memory[00be *Channel A: Current Width Modulation Select* (0x04)]=00
+memory[00ac *Channel A: Current Intensity Modulation Select* (0x00)]=55
+memory[00b5 *Channel A: Current Frequency Modulation Select* (0x08)]=00
 memory[00b7 *Channel A: Current Width Modulation Value* (0x82)]=ff
+memory[00be *Channel A: Current Width Modulation Select* (0x04)]=00
+memory[0090 *Channel A: Current Gate Value* (0x06)]=05
 #+END_EXAMPLE
 
 So this
 
 - Sets the MA knob range from 0x00 to 0x20
-- A Intensity: changes in steps of *0x02* over the range of minimum to 0xff, using the *244Hz timer*.  Rate is *from the MA knob*.  Minimum (default 0xcd) is set to inverse of the advanced parameter default for Intensity.  When reaching the maximum or minimum the A output *toggles and reverses direction*.
-- A Frequency: changes in steps of 0x01, rate 0x01 in the range 0x09 to 0x64, the frequency *does not change by the MA knob*.
-- A Width: changes in steps of 0x01, rate 0x01 in the range 0x32 to 0xc8, reversing at minimum and maximum.  (Why does it set the starting value to 0xff?).  Does *not use the advance parameter default*.
+- A Intensity: changes in steps of 0x02 over the range of minimum to 0xff, using the 244Hz timer.  Rate is from the MA knob.  Minimum is set to inverse of the advanced parameter default for Intensity.  When reaching the maximum or minimum the output gate toggles and reverses direction.
+- A Frequency: changes in steps of 0x01, rate 0x01 in the range 0x09 to 0x64, (the frequency does not change by the MA knob).
+- A Width: changes in steps of 0x01, rate 0x01 in the range 0x32 to 0xc8, reversing at minimum and maximum.  (starting value is 0xff).  (Does not use the advance parameter default).
 
-If the user is not using the Split mode, the firmware will then also load Module 4.
-Module 4 contains these Instructions:
+If the user is not using the Split mode, the firmware will then also load Module 3 for channel B, then Module 4 which
+together form these Instructions:
 
 #+BEGIN_EXAMPLE
-memory[01ac *Channel B: Current Intensity Modulation Select* (0x00)]=41
 memory[01a6 *Channel B: Current Intensity Modulation Min* (0xcd)]=e6
-memory[01b7 *Channel B: Current Width Modulation Value* (0x82)]=d8
 memory[01a9 *Channel B: Current Intensity Modulation Step* (0x01)]=01
+memory[01aa *Channel B: Current Intensity Action at Min* (0xff)]=fe
+memory[01ab *Channel B: Current Intensity Action at Max* (0xff)]=fe
+memory[01ac *Channel B: Current Intensity Modulation Select* (0x00)]=41
+memory[01b5 *Channel B: Current Frequency Modulation Select* (0x08)]=00
+memory[01b7 *Channel B: Current Width Modulation Value* (0x82)]=d8
+memory[01be *Channel B: Current Width Modulation Select* (0x04)]=00
+memory[0190 *Channel B: Current Gate Value* (0x06)]=05
 #+END_EXAMPLE
 
-This
+This sets up:
 
-- B Intensity: changes in steps of 0x01, rate 0x01 in range *0xe6* to 0xff, using the *244Hz timer*.  Rate is *from the MA knob*.  Minimum doesn't change.
-- B Width: *follows the inverse of the current MA knob value*.
-- B Frequency: set to the value of the advanced_parameter default
+- B Intensity: changes in steps of 0x01 over the range of 0xe6 to 0xff, using the 244Hz timer.  Rate is from the MA knob.  When reaching the maximum or minimum the output toggles and reverses direction.
+- B Frequency: changes in steps of 0x01, rate 0x01 in the range 0x09 to 0x64, (the frequency does not change).
+- B Width: changes in steps of 0x01, rate 0x01 in the range 0x32 to 0xc8, reversing at minimum and maximum.  (starting value is 0xd8).  (Does not use the advance parameter default).
 
 *** Program to Module list
 
