@@ -320,6 +320,18 @@ memory[0190 *Channel B: Current Gate Value* (0 when no output)]=06
 memory[0086 *Multi Adjust Range Min* (0x0f)]=00
 #+END_EXAMPLE
 
+Module 18 triggers Module 19:
+
+#+BEGIN_EXAMPLE
+memory[0085 when module loading determines which channels to set (0x03)]=01
+memory[0090 *Channel A: Current Gate Value* (0x06)]=06
+memory[0085 when module loading determines which channels to set (0x03)]=03
+memory[0097 *Next module number* (0x00)]=12
+memory[0190 *Channel B: Current Gate Value* (0 when no output)]=07
+memory[008c Module temporary byte store]=memory[020d *Current Multi Adjust Value / COMM_MULTI_AVG*]
+memory[0095 *Next module timer max* (0xff)]=memory[008c Module temporary byte store]
+#+END_EXAMPLE
+
 *** Program Orgasm is Modules 24, 25, 26, 27
 
 If you select Program "Toggle" then the firmware loads Module 24.  Module 24 contains these Instructions:
@@ -328,7 +340,7 @@ If you select Program "Toggle" then the firmware loads Module 24.  Module 24 con
 memory[00ac *Channel A: Current Intensity Modulation Select* (0x00)]=00
 memory[00b7 *Channel A: Current Width Modulation Value* (0x82)]=32
 memory[00bb *Channel A: Current Width Modulation Step* (0x01)]=04
-memory[00ba ]=01
+memory[00ba *Channel A: Current Width Modulation Rate* (0x01)]=01
 memory[00b8 *Channel A: Current Width Modulation Min* (0x32)]=32
 memory[0085 when module loading determines which channels to set (0x03)]=01
 memory[00be *Channel A: Current Width Modulation Select* (0x04)]=01
