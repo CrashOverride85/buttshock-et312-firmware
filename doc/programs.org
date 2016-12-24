@@ -146,7 +146,7 @@ This sets up:
 - B Frequency: changes in steps of 0x01, rate 0x01 in the range 0x09 to 0x64, (the frequency does not change).
 - B Width: changes in steps of 0x01, rate 0x01 in the range 0x32 to 0xc8, reversing at minimum and maximum.  (starting value is 0xd8).  (Does not use the advance parameter default).
 
-*** Program Climb is Modules 5, 8
+*** Program Climb is Modules 5-10
 
 If you select Program "Climb" then the firmware loads Module 5.  Module 5 contains these Instructions:
 
@@ -160,6 +160,31 @@ memory[00b3 *Channel A: Current Frequency Modulation Action Min* (0xff)]=06
 memory[00b5 *Channel A: Current Frequency Modulation Select* (0x08)]=41
 #+END_EXAMPLE
 
+- Sets the MA range from 0x01-0x64
+- A Intensity: static with value 0xff.  
+- A Width: set to the advanced paramer default.  
+- A Frequency: changes in steps of 0x01, Uses 244Hz timer, rate from the MA knob, in the range 0xff to 0x09 starting at 0xff.  When reaching the minimum will trigger Module 6
+
+Module 6:
+
+#+BEGIN_EXAMPLE
+memory[00b2 *Channel A: Current Frequency Modulation Step* (0x01)]=02
+memory[00ae *Channel A: Current Frequency Modulation Value* (0x16)]=ff
+memory[00b3 *Channel A: Current Frequency Modulation Action Min* (0xff)]=07
+#+END_EXAMPLE
+
+- Changes the Frequency step to 0x02, starting at 0xff down to 0x09, when reaches minimum triggers Module 7
+
+Module 7:
+
+#+BEGIN_EXAMPLE
+memory[00b2 *Channel A: Current Frequency Modulation Step* (0x01)]=04
+memory[00ae *Channel A: Current Frequency Modulation Value* (0x16)]=ff
+memory[00b3 *Channel A: Current Frequency Modulation Action Min* (0xff)]=05
+#+END_EXAMPLE
+
+- Changes the Frequency step to 0x04, starting at 0xff down to 0x09, when reaches minimum triggers Module 5
+
 If the user is not using the Split mode, the firmware will then also load Module 5 for channel B, then Module 8 which
 together form these Instructions:
 
@@ -170,6 +195,32 @@ memory[01b2 *Channel B: Current Frequency Modulation Step* (0x01)]=01
 memory[01b3 *Channel B: Current Frequency Modulation Action Min* (0xff)]=09
 memory[01b5 *Channel B: Current Frequency Modulation Select* (0x08)]=41
 #+END_EXAMPLE
+
+- B Intensity: static with value 0xff.  
+- B Width: set to the advanced paramer default.  
+- B Frequency: changes in steps of 0x01, Uses 244Hz timer, rate from the MA knob, in the range 0xff to 0x09 starting at 0xff.  When reaching the minimum will trigger Module 9
+
+Module 9:
+
+#+BEGIN_EXAMPLE
+memory[0085 when module loading determines which channels to set (0x03)]=02
+memory[01b2 *Channel B: Current Frequency Modulation Step* (0x01)]=02
+memory[01ae *Channel B: Current Frequency Modulation Value* (0x16)]=ff
+memory[01b3 *Channel B: Current Frequency Modulation Action Min* (0xff)]=0a
+#+END_EXAMPLE
+
+- B Frequency: changes in steps of 0x02, in the range 0xff to 0x09 starting at 0xff.  When reaching the minimum will trigger Module 10
+
+Module 10:
+
+#+BEGIN_EXAMPLE
+memory[0085 when module loading determines which channels to set (0x03)]=02
+memory[01b2 *Channel B: Current Frequency Modulation Step* (0x01)]=05
+memory[01ae *Channel B: Current Frequency Modulation Value* (0x16)]=ff
+memory[01b3 *Channel B: Current Frequency Modulation Action Min* (0xff)]=08
+#+END_EXAMPLE
+
+- B Frequency: changes in steps of 0x05, in the range 0xff to 0x09 starting at 0xff.  When reaching the minimum will trigger Module 8
 
 *** Program Combo is Modules 13, 33
 
@@ -308,17 +359,27 @@ memory[0195 *Next module timer max* (0xff)]=rand(memory[008d Random Number Min],
 If you select Program "Toggle" then the firmware loads Module 18.  Module 18 contains these Instructions:
 
 #+BEGIN_EXAMPLE
-memory[00b5 *Channel A: Current Frequency Modulation Select* (0x08)]=04
+memory[0086 *Multi Adjust Range Min* (0x0f)]=00
+memory[0087 *Multi Adjust Range Max* (0xff)]=7f
 memory[0096 *Next module flag* (0x00)]=02
 memory[008c Module temporary byte store]=memory[020d *Current Multi Adjust Value / COMM_MULTI_AVG*]
 memory[0095 *Next module timer max* (0xff)]=memory[008c Module temporary byte store]
 memory[0097 *Next module number* (0x00)]=13
+memory[00b5 *Channel A: Current Frequency Modulation Select* (0x08)]=04
 memory[00bf *Channel A: Current Width Modulation Timer* (0x00)]=04
-memory[0087 *Multi Adjust Range Max* (0xff)]=7f
 memory[0090 *Channel A: Current Gate Value* (0x06)]=07
 memory[0190 *Channel B: Current Gate Value* (0 when no output)]=06
-memory[0086 *Multi Adjust Range Min* (0x0f)]=00
 #+END_EXAMPLE
+
+The above runs for both Channel A then with memory modified for Channel B and causes:
+
+- A/B Intensity: static with value 0xff. 
+- A/B Frequency: static at the advanced parameter default
+- A/B Width: set to the advanced parameter default
+- Channel A gate is turned on, Channel B gate is turned off
+- MA range is 0x00-0x7f
+- Sets the "Next Module timer" maximum to the value of the MA knob and to trigger Module 19, flag of 2 means use the 30.5Hz timer (since
+the maximum count is 0x7f this gives effective toggle time of between 0 and about 4 seconds)
 
 Module 18 triggers Module 19:
 
@@ -331,6 +392,11 @@ memory[0190 *Channel B: Current Gate Value* (0 when no output)]=07
 memory[008c Module temporary byte store]=memory[020d *Current Multi Adjust Value / COMM_MULTI_AVG*]
 memory[0095 *Next module timer max* (0xff)]=memory[008c Module temporary byte store]
 #+END_EXAMPLE
+
+The above:
+
+- Channel A gate is turned off, Channel B gate is turned on
+- Sets the "Next Module timer" maximum to the value of the MA knob and to trigger Module 18
 
 *** Program Orgasm is Modules 24, 25, 26, 27
 
@@ -461,7 +527,7 @@ This is a special case.
 |---------------+---------------------------------|
 | waves  | 11 (A, B), 12 (B) |
 | stroke |  3 (A, B),  4 (B) |
-| climb  |  5 (A, B),  8 (B) |
+| climb  |  5 (A, B), 6 (A, B), 7 (A, B), 8 (B), 9 (B), 10 (B) |
 | combo  | 13 (A, B), 33 (B) |
 | intense| 14 (A, B),  2 (B) |
 | rhythm | 15 (triggers run 16, 17) |
