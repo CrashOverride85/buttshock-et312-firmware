@@ -445,7 +445,7 @@ memory[00bb *Channel A: Current Width Modulation Step* (0x01)]=01
 memory[01bb *Channel B: Current Width Modulation Step* (0x01)]=01
 #+END_EXAMPLE
 
-*** Program Torment is Modules 28
+*** Program "Torment" is Modules 28, 29, 30, 31
 
 If you select Program "Torment" then the firmware loads Module 28.  Module 28 contains these Instructions:
 
@@ -471,7 +471,34 @@ memory[0197 *Next module number* (0x00)]=rand(memory[008d Random Number Min],mem
 memory[00ab *Channel A: Current Intensity Action at Max* (0xff)]=ff
 #+END_EXAMPLE
 
-*** Program Phase 1 is Modules 20 and 21
+Module 29 contains:
+
+#+BEGIN_EXAMPLE
+memory[0085 when module loading determines which channels to set (0x03)]=03
+memory[00ac *Channel A: Current Intensity Modulation Select* (0x00)]=01
+memory[0090 *Channel A: Current Gate Value* (0x06)]=07
+memory[00ab *Channel A: Current Intensity Action at Max* (0xff)]=1c
+#+END_EXAMPLE
+
+Module 30 contains:
+
+#+BEGIN_EXAMPLE
+memory[0085 when module loading determines which channels to set (0x03)]=02
+memory[01ac *Channel B: Current Intensity Modulation Select* (0x00)]=01
+memory[0190 *Channel B: Current Gate Value* (0 when no output)]=07
+memory[01ab *Channel B: Current Intensity Action at Max* (0xff)]=1c
+#+END_EXAMPLE
+
+Module 31 contains:
+
+#+BEGIN_EXAMPLE
+memory[0085 when module loading determines which channels to set (0x03)]=01
+memory[00ac *Channel A: Current Intensity Modulation Select* (0x00)]=01
+memory[0090 *Channel A: Current Gate Value* (0x06)]=07
+memory[00ab *Channel A: Current Intensity Action at Max* (0xff)]=1c
+#+END_EXAMPLE
+
+*** Program "Phase 1" is Modules 20 and 21
 
 If you select Program "Phase 1" then the firmware loads Module 20.  It also hardcodes the output control
 flags at 0x83.  For Channel B it loads Module 20 and then Module 21
@@ -492,7 +519,7 @@ Module 21 contains these Instructions:
 memory[00b7 *Channel A: Current Width Modulation Value* (0x82)]=79
 #+END_EXAMPLE
 
-*** Program Phase 2 is Modules 20 and 21 and 35
+*** Program "Phase 2" is Modules 20 and 21 and 35
 
 If you select Program "Phase 1" then the firmware loads Module 20 then 35.  It also hardcodes the output control
 flags at 0x83.  For Channel B it loads Module 20 then 21 then 35. 
@@ -503,7 +530,7 @@ Module 35 contains these Instructions:
 memory[00ac *Channel A: Current Intensity Modulation Select* (0x00)]=25
 #+END_EXAMPLE
 
-*** Program Phase 3 is Module 22
+*** Program "Phase 3" is Module 22
 
 If you select Program "Phase 3" then the firmware loads Module 22.  Module 22 contains these Instructions:
 
@@ -517,7 +544,7 @@ memory[00b5 *Channel A: Current Frequency Modulation Select* (0x08)]=04
 memory[01ac *Channel B: Current Intensity Modulation Select* (0x00)]=09
 #+END_EXAMPLE
 
-*** Program Random 1
+*** Program "Random 1"
 
 This is a special case.
 
@@ -536,7 +563,7 @@ This is a special case.
 | random2| 32 (triggers load 32 again) |
 | toggle | 18 (triggers run 19) |
 | orgasm | 24 (triggers run 25, 26, 27) |
-| torment| 28 |
+| torment| 28-31 |
 | phase1 | 20 (A, B), 21 (B) |
 | phase2 | 20 (A, B), 21 (B), 35 (A,B) |
 | phase3 | 22 (A, B)|
