@@ -278,7 +278,7 @@ memory[019a *Channel B: Current Gate Select* (0x00)]=01
 
 *** Program Rhythm is Modules 15, 16, 17
 
-If you select Program "Rhythm" then the firmware loads Module 15.  Module 15 contains these Instructions:
+If you select Program "Rhythm" then the firmware loads Module 15:
 
 #+BEGIN_EXAMPLE
 memory[0086 *Multi Adjust Range Min* (0x0f)]=01
@@ -298,9 +298,10 @@ memory[00b7 *Channel A: Current Width Modulation Value* (0x82)]=46
 memory[00be *Channel A: Current Width Modulation Select* (0x04)]=00
 #+END_EXAMPLE
 
-- Sets a timer using the 30.5Hz clock.  Once it counts up to 0x1f (one second) then Module 16 will be loaded
-- Intensity: Using the 244Hz timer, sets step to 0x00, rate to 0x01, and range 0xe0 to 0xff, starting at 0xe0, when reaching 0xff loops back to start at 0xe0 again.  Using a step of 0x00 the intensity will only change when another Module changes it.
-- Frequency: set to the value of the MA knob.  
+- Set MA range from 0x01-0x17
+- Sets a timer using the 30.5Hz clock.  Once it counts up to 0x1f (which will take 1 second) then Module 16 will be loaded
+- Intensity: Using the 244Hz timer, sets step to 0x00, rate to 0x01, starting at 0xe0 counting to 0xff then jumps back to 0xe0 again.  Using a step of 0x00 however so the intensity will only change when another Module changes it.
+- Frequency: follows the value of the MA knob (0x01-0x17)
 - Width: static at 0x46
 
 Module 15 triggers Module 16:
@@ -312,8 +313,8 @@ memory[00a5 *Channel A: Current Intensity Modulation Value* (0xff)]+=01
 memory[00b7 *Channel A: Current Width Modulation Value* (0x82)]=b4
 #+END_EXAMPLE
 
-- Timer restarts.  Once it counts up to 0x1f (one second) then Module 17 will be loaded
-- Width: static at 0xb4
+- Timer restarts.  Once it counts up to 0x1f (which will take 1 second) then Module 17 will be loaded
+- Width: changes to be static at 0xb4
 - Intensity: increases the current static value ( 0xe0 becomes 0xe2, 0xe2 becomes 0xe4 etc)
 
 Module 16 triggers Module 17:
@@ -323,13 +324,13 @@ memory[0097 *Next module number* (0x00)]=10
 memory[00b7 *Channel A: Current Width Modulation Value* (0x82)]=46
 #+END_EXAMPLE
 
-- Timer restarts.  Once it counts up to 0x1f (one second) then Module 16 will be loaded
-- Width: static at 0x46
+- Timer restarts.  Once it counts up to 0x1f (which will take 1 second ) then Module 16 will be loaded
+- Width: changes to be static at 0x46
 
 *** Program "Audio 1" is Module 23
 
 If you select Program "Audio 1" then the firmware loads Module 23.  It also sets up a flag for other
-code that we're in a mono audio mode, and has hardcoded settings for the gate outputs (memory 0x90 and 0x190).
+code that we're in a mono audio mode (bit 6 of x83), and has hardcoded settings for the gate outputs (memory 0x90 and 0x190 set to 0x47).
 
 Module 23 contains these Instructions:
 
@@ -339,7 +340,7 @@ memory[00be *Channel A: Current Width Modulation Select* (0x04)]=00
 #+END_EXAMPLE
 
 - Intensity: static with value 0xff
-- Frequency: set to the value of the advanced default
+- Frequency: set to the value of the advanced parameter default
 - Width: static with the value 0x82
 
 *** Program "Audio 2" is Module 23
@@ -350,7 +351,7 @@ If you select Program "Audio 2" then the firmware also loads Module 23.  Everyth
 *** Program "Audio 3" is Module 34
 
 If you select Program "Audio 3" then the firmware loads Module 34.  It also has hardcoded settings for the
-gate outputs (memory 0x90 and 0x190) and output control flags 0x83.
+gate outputs (memory 0x90 and 0x190 to 0x67) and output control flags 0x83 (sets bit 2 of 0x83).
 
 Module 34 contains these Instructions:
 
@@ -362,11 +363,11 @@ memory[00be *Channel A: Current Width Modulation Select* (0x04)]=00
 
 - Intensity: static with value 0xff
 - Frequency: static with value 0x0a
-- Width: static with the value 0x82
+- Width: static with tvalue 0x82
 
 *** Program "Random 2" is Module 32
 
-If you select Program "Random 2" then the firmware loads Module 32.  Module 32 contains these Instructions:
+If you select Program "Random 2" then the firmware loads Module 32:
 
 #+BEGIN_EXAMPLE
 memory[008d Random Number Min]=01
@@ -394,11 +395,11 @@ memory[0195 *Next module timer max* (0xff)]=rand(memory[008d Random Number Min],
 - B Frequency: Using 30.5Hz timer, step to random between 1-4, rate to random between 1-4, and range 0x09 to 0x64 starting from 0x16, reversing at the maximum and minimum.
 - A Width: Using 244Hz timer, step to 0x01, rate to random between 1-4, and range 0x32 to 0xc8 starting from 0x82, reversing at the maximum and minimum.
 - B Width: Using 244Hz timer, step to 0x01, rate to random between 1-4, and range 0x32 to 0xc8 starting from 0x82, reversing at the maximum and minimum.
-- After a random time using .953Hz timer between 0x05-0x1f (5-32 seconds), reload Module 32
+- After a random time, using .953Hz timer between 0x05-0x1f (5-32 seconds), reload Module 32
 
 *** Program "Toggle" is Modules 18, 19
 
-If you select Program "Toggle" then the firmware loads Module 18.  Module 18 contains these Instructions:
+If you select Program "Toggle" then the firmware loads Module 18:
 
 #+BEGIN_EXAMPLE
 memory[0086 *Multi Adjust Range Min* (0x0f)]=00
@@ -415,11 +416,11 @@ memory[0190 *Channel B: Current Gate Value* (0 when no output)]=06
 
 The above runs for both Channel A then with memory modified for Channel B and causes:
 
+- MA range is 0x00-0x7f
 - A/B Intensity: static with value 0xff. 
 - A/B Frequency: static at the advanced parameter default
-- A/B Width: set to the advanced parameter default
+- A/B Width: static at the advanced parameter default
 - Channel A gate is turned on, Channel B gate is turned off
-- MA range is 0x00-0x7f
 - Sets the "Next Module timer" maximum to the value of the MA knob and to trigger Module 19, flag of 2 means use the 30.5Hz timer (since the maximum count is 0x7f this gives effective toggle time of between 0 and about 4 seconds)
 
 Module 18 triggers Module 19:
@@ -439,7 +440,7 @@ memory[0095 *Next module timer max* (0xff)]=memory[008c Module temporary byte st
 
 *** Program Orgasm is Modules 24-27
 
-If you select Program "Orgasm" then the firmware loads Module 24.  Module 24 contains these Instructions:
+If you select Program "Orgasm" then the firmware loads Module 24:
 
 #+BEGIN_EXAMPLE
 memory[00ac *Channel A: Current Intensity Modulation Select* (0x00)]=00
@@ -453,9 +454,9 @@ memory[00bd *Channel A: Current Width Modulation Action Max* (0xff)]=19
 memory[01be *Channel B: Current Width Modulation Select* (0x04)]=00
 #+END_EXAMPLE
 
-- A/B Intensity: static with value 0xff.  
-- A/B Frequency: set to the value of the MA knob.
-- A Width: Uses 244Hz timer, the default set the step to 0x04, rate to 0x01, and range 0x32 to 0xc8 starting from 0x32, when reaches the maximum triggers Module 25
+- A/B Intensity: static with value 0xff
+- A/B Frequency: follows the value of the MA knob
+- A Width: Uses 244Hz timer, the default set the step to 4, rate to 1, and range starting 0x32 up to 0xc8, then triggers Module 25
 - B Width: static with the value 0x32
 
 Module 24 triggers Module 25:
@@ -471,9 +472,9 @@ memory[00b8 *Channel A: Current Width Modulation Min* (0x32)]+=02
 memory[00b8 *Channel A: Current Width Modulation Min* (0x32)]^02
 #+END_EXAMPLE
 
-- Changes A Width to use 244Hz timer, step -0x01, rate 0x01, at minimum trigger Module 26
-- Changes B Width to use 244Hz timer, step 0x01, rate 0x01, range 0x32 to 0xc8, reverse at maximum and minimum
-- Increments the minimum Width for both channels
+- Changes A Width to use 244Hz timer, step -1, rate 1, at minimum triggers Module 26
+- Changes B Width to use 244Hz timer, step 1, rate 1, range 0x32 to 0xc8, reverse at maximum and minimum
+- Increments the minimum Width for both channels by 4
 
 Module 25 triggers Module 26:
 
@@ -483,8 +484,8 @@ memory[00be *Channel A: Current Width Modulation Select* (0x04)]=00
 memory[01bc *Channel B: Current Width Modulation Action Min* (0xff)]=1b
 #+END_EXAMPLE
 
-- changes A width to be static
-- when B width reaches minimum trigger module 27
+- Changes A width to be static at whatever it was before
+- Changes B width so when reaches minimum triggers Module 27
 
 Module 26 triggers Module 27:
 
@@ -496,12 +497,12 @@ memory[00bb *Channel A: Current Width Modulation Step* (0x01)]=01
 memory[01bb *Channel B: Current Width Modulation Step* (0x01)]=01
 #+END_EXAMPLE
 
-- changes A width to use 244Hz timer again, step 0x01 (maximum will trigger Module 25, minimum will trigger Module 26)
-- changes B width to be static, sets step to 0x01 (minimum will trigger 27)
+- changes A width to use 244Hz timer again, step 1 (at maximum will trigger Module 25, at minimum will trigger Module 26)
+- changes B width to be static, sets step to 1 (at minimum will trigger Module 27)
 
 *** Program "Torment" is Modules 28, 29, 30, 31
 
-If you select Program "Torment" then the firmware loads Module 28.  Module 28 contains these Instructions:
+If you select Program "Torment" then the firmware loads Module 28:
 
 #+BEGIN_EXAMPLE
 memory[0085 when module loading determines which channels to set (0x03)]=03
@@ -525,7 +526,10 @@ memory[0197 *Next module number* (0x00)]=rand(memory[008d Random Number Min],mem
 memory[00ab *Channel A: Current Intensity Action at Max* (0xff)]=ff
 #+END_EXAMPLE
 
-- TBD
+- A/B Intensity: static at value 0xb0.  But sets the Max to random between 0xe0 and 0xff and the rate to random between 0x06 and 0x3f
+- A/B Intensity: if reaches max then triggers Module 28
+- A/B Gate: turned off
+- Set the next module timer to a random number between 0x05 and 0x18, using the .953Hz timer (so 5-23 seconds).  Module to be trigged is chosen at random, 29-31
 
 Module 29 contains:
 
@@ -536,7 +540,8 @@ memory[0090 *Channel A: Current Gate Value* (0x06)]=07
 memory[00ab *Channel A: Current Intensity Action at Max* (0xff)]=1c
 #+END_EXAMPLE
 
-- TBD
+- A/B Gate: turns on the gate
+- A/B Intensity: start ramping up from current value using 244Hz timer, step 1, rate 1, when reaches maximum load Module 28 
 
 Module 30 contains:
 
@@ -547,7 +552,8 @@ memory[0190 *Channel B: Current Gate Value* (0 when no output)]=07
 memory[01ab *Channel B: Current Intensity Action at Max* (0xff)]=1c
 #+END_EXAMPLE
 
-- TBD
+- B Gate: turns on the gate
+- B Intensity: start ramping up from current value using 244Hz timer, step 1, rate 1, when reaches maximum load Module 28 
 
 Module 31 contains:
 
@@ -558,12 +564,13 @@ memory[0090 *Channel A: Current Gate Value* (0x06)]=07
 memory[00ab *Channel A: Current Intensity Action at Max* (0xff)]=1c
 #+END_EXAMPLE
 
-- TBD
+- A Gate: turns on the gate
+- A Intensity: start ramping up from current value using 244Hz timer, step 1, rate 1, when reaches maximum load Module 28 
 
 *** Program "Phase 1" is Modules 20 and 21
 
 If you select Program "Phase 1" then the firmware loads Module 20.  It also hardcodes the output control
-flags at 0x83.  For Channel B it loads Module 20 and then Module 21
+flags at 0x83 (to 0x5).
 
 Module 20 contains these Instructions:
 
@@ -575,15 +582,22 @@ memory[00be *Channel A: Current Width Modulation Select* (0x04)]=00
 memory[00b7 *Channel A: Current Width Modulation Value* (0x82)]=7d
 #+END_EXAMPLE
 
-- TBD
+- Sets MA range from 0x01-0x20
+- A Frequency: static at advanced parameter default
+- A Width: static at 0x7d
+- A Intensity: static at 0xff
 
-Module 21 contains these Instructions:
+For Channel B it loads Module 20 and then Module 21 causing:
 
 #+BEGIN_EXAMPLE
-memory[00b7 *Channel A: Current Width Modulation Value* (0x82)]=79
+memory[00b5 *Channel B: Current Frequency Modulation Select* (0x08)]=04
+memory[00be *Channel B: Current Width Modulation Select* (0x04)]=00
+memory[00b7 *Channel B: Current Width Modulation Value* (0x82)]=79
 #+END_EXAMPLE
 
-- TBD
+- B Frequency: static at advanced parameter default
+- B Width: static at 0x79
+- B Intensity: static at 0xff
 
 *** Program "Phase 2" is Modules 20 and 21 and 35
 
@@ -596,7 +610,13 @@ Module 35 contains these Instructions:
 memory[00ac *Channel A: Current Intensity Modulation Select* (0x00)]=25
 #+END_EXAMPLE
 
-- TBD
+Together this causes:
+
+- Sets MA range from 0x01-0x20
+- A/B Frequency: static at advanced parameter default
+- A Width: static at 0x7d
+- B Width: static at 0x79
+- A/B Intensity: Updates based on 244Hz timer, rate from advanced parameter default, step 1, from advanced parameter default minimum to 0xff, reversing at maximum and minimum.
 
 *** Program "Phase 3" is Module 22
 
@@ -616,7 +636,7 @@ memory[01ac *Channel B: Current Intensity Modulation Select* (0x00)]=09
 
 *** Program "Random 1"
 
-This is a special case.
+This is a special case.  It sets the flag at 0x74 to 1 and does not load any additional Modules.
 
 - TBD
 
