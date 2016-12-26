@@ -231,7 +231,7 @@ memory[00be *Channel A: Current Width Modulation Select* (0x04)]=26
 - A Intensity: static with value 0xff.  
 - A Frequency: Uses the 30.5Hz timer, step of 1, rate of 1, and range 0x09 to 0x64 starting from 0x16, reversing at the maximum and minimum.
 - A Width: Uses the 30.5Hz timer, step of 1, rate is advanced parameter default, and range min from advanced parameter default to 0xc8 starting from 0x82, reversing at the maximum and minimum.
-- TBD A Gate select 4a.  (Note: We've not documented "Gate Select" values)
+- A Gate: turns on and off using the 30.5Hz timer following the value of the MA knob (so up to 2 seconds on/2 seconds off)
 
 If the user is not using the Split mode, the firmware will then also load Module 13 for channel B, then Module 33 which
 together form these Instructions:
@@ -247,7 +247,7 @@ memory[01be *Channel B: Current Width Modulation Select* (0x04)]=26
 - B Intensity: static with value 0xff.  
 - B Frequency: Uses the 30.5Hz timer, step of 2, rate of 1, and range 0x09 to 0x64 starting from 0x16, reversing at the maximum and minimum.
 - B Width: Uses the 30.5Hz timer, step of 2, rate is advanced parameter default, and range min from advanced parameter default to 0xc8 starting from 0x82, reversing at the maximum and minimum.
-- TBD B Gate select 4a
+- B Gate: turns on and off using the 30.5Hz timer following the value of the MA knob (so up to 2 seconds on/2 seconds off)
 
 *** Program Intense is Modules 14, 2
 
