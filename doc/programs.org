@@ -249,7 +249,7 @@ memory[01be *Channel B: Current Width Modulation Select* (0x04)]=26
 - B Width: Uses the 30.5Hz timer, step of 2, rate is advanced parameter default, and range min from advanced parameter default to 0xc8 starting from 0x82, reversing at the maximum and minimum.
 - B Gate: turns on and off using the 30.5Hz timer following the value of the MA knob (so up to 2 seconds on/2 seconds off)
 
-*** Program Intense is Modules 14, 2
+*** Program "Intense" is Modules 14, 2
 
 If you select Program "Intense" then the firmware loads Module 14:
 
@@ -276,7 +276,7 @@ memory[019a *Channel B: Current Gate Select* (0x00)]=01
 - B Width: set to the advanced parameter default.
 - B output will turn on and off using the 244Hz timer, on for 0x3f and off for 0x3f cycles (giving 2Hz)
 
-*** Program Rhythm is Modules 15, 16, 17
+*** Program "Rhythm" is Modules 15, 16, 17
 
 If you select Program "Rhythm" then the firmware loads Module 15:
 
@@ -330,7 +330,7 @@ memory[00b7 *Channel A: Current Width Modulation Value* (0x82)]=46
 *** Program "Audio 1" is Module 23
 
 If you select Program "Audio 1" then the firmware loads Module 23.  It also sets up a flag for other
-code that we're in a mono audio mode (bit 6 of x83), and has hardcoded settings for the gate outputs (memory 0x90 and 0x190 set to 0x47).
+code that we're in a mono audio mode (bit 6 of x83), and has hardcoded settings for the gate outputs (memory 0x90 and 0x190 set to 0x47, i.e. bit 6 is set).
 
 Module 23 contains these Instructions:
 
@@ -342,6 +342,13 @@ memory[00be *Channel A: Current Width Modulation Select* (0x04)]=00
 - Intensity: static with value 0xff
 - Frequency: set to the value of the advanced parameter default
 - Width: static with the value 0x82
+
+The main loop checks to see if bit 6 from x90 is set.  If it is then
+it gets the value from the DAC (ADC7 - Audio Input Level A (Half
+Wave)), divides it by two and if the LSB was a 1 subtracts 0x53 then
+sets the A Intensity to that value, otherwise sets the Intensity to
+0xff.  It does the same for the B Channel using the value from the DAC
+(ADC6 - Audio Input Level B (Half Wave)).
 
 *** Program "Audio 2" is Module 23
 
@@ -364,6 +371,8 @@ memory[00be *Channel A: Current Width Modulation Select* (0x04)]=00
 - Intensity: static with value 0xff
 - Frequency: static with value 0x0a
 - Width: static with tvalue 0x82
+
+"Audio 3" Program also ends up setting up an interrupt based on Int 0/1 (Audio A/B digital inputs).  
 
 *** Program "Random 2" is Module 32
 
@@ -438,7 +447,7 @@ memory[0095 *Next module timer max* (0xff)]=memory[008c Module temporary byte st
 - Channel A gate is turned off, Channel B gate is turned on
 - Sets the "Next Module timer" maximum to the value of the MA knob and to trigger Module 18
 
-*** Program Orgasm is Modules 24-27
+*** Program "Orgasm" is Modules 24-27
 
 If you select Program "Orgasm" then the firmware loads Module 24:
 
@@ -638,7 +647,15 @@ memory[01ac *Channel B: Current Intensity Modulation Select* (0x00)]=09
 
 This is a special case.  It sets the flag at 0x74 to 1 and does not load any additional Modules.
 
-- TBD
+The main loop looks around 60 times a second at 0x74.  If it's a 1 we want to start Random 1 mode.  Otherwise
+the code checks to see if it's time to change to a new Random Program.
+
+It then:
+
+- Picks a random number between 0x76 and 0x7b and store that in 0x74 (this is the current random Program selected, "Waves", "Stroke", "Climb", "Combo", "Intense", or "Rhythm").
+- Picks a random number between 0x14 and 0x78 adds it to the current master timer msb, which is used to determine how long before we change  mode
+- Picks a random number between 0x8c and 0xb8 and stores in 0x184 (TBD: unknown)
+- Makes sure we're still in Random 1 mode, and if so we select the program as determined above
 
 ** Program to Module list
 
