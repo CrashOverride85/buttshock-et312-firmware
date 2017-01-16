@@ -477,7 +477,7 @@
 0x21A6	P	B	8	module_climba_blockb
 0x21AE	P	B	8	module_climba_blockc
 0x21B6	P	B	18	module_climbb
-0x21C8	P	W	3717	random_unused
+0x21C8	P	W	3612	random_unused
 
 0x3ff8	P	S	1	authors_initials
 
