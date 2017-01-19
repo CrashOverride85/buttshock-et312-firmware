@@ -728,7 +728,7 @@
 0x764	T	we didn't apply stuff to channel b, so grab the 2nd mode and run through the mode selection stuff again with it
 0x47c	T	If 0x74-$4074 is a 1 then we want to start Random1 mode (if it's 0 we're not in Random1 mode)
 0x458	T	x84-0x4084-next-module-if-triggered-from-conditional
-0x1476	L	Label_0x1476         bug? the 1.5 bootloader jumps here
+0x1476	L	Label_0x1476         the 1.5 bootloader jumps here
 0x4b8	L	Label_0x4b8	     look to see if any buttons are pushed
 
 0x1408	T	r6 is [x9C] Mode Switch Ramp Value Counter
@@ -879,7 +879,7 @@
 0x15c0	T	0x6b-0x406b-channela-fet-calibration
 
 0x558	T	0x6c-0x406c-channelb-fet-calibration
-0x1472	T	0x6c-0x406c-channelb-fet-calibration
+0x1474	T	0x6c-0x406c-channelb-fet-calibration
 0x15ea	T	0x6c-0x406c-channelb-fet-calibration
 
 0x4d8	T	0x68-0x4068-buttons
