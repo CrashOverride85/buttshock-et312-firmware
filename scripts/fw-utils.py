@@ -95,13 +95,13 @@ class ET312FirmwareUtils(object):
     #
     # For code in the output which isn't in a replace_ section, just patch it
     # in at the location specified.
-        
+
     def patch(self, patchfile):
         import re
         self.verbose = True
 
         patched = 0
-        
+
         f = open(patchfile,"r")
         for line in f:
             replace = re.search('<replace_([^>]+)',line)
@@ -138,9 +138,13 @@ class ET312FirmwareUtils(object):
                 except:
                     pass
 
-        print("Patched %d bytes" %(patched))
+        crc = self.generate_crc()
+        for i in range(3):
+            self.input_file[-16 + i] = crc[i]
+        # Add 3 due since we changed the crc
+        print("Patched %d bytes" % (patched + 3))
         self.output_file.write(bytearray(self.input_file))
-        return        
+        return
 
 def download_firmware_file(path, filename):
     # If this url ever goes away, just attach
