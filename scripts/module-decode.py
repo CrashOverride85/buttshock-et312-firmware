@@ -240,13 +240,13 @@ if (args.input_file):
 if (args.port):
    import sys
    sys.path.append("../../buttshock-py/")
-   import buttshock
-   et312 = buttshock.ButtshockET312SerialSync(args.port)
-   try:
-      et312.perform_handshake()
-   except buttshock.ButtshockError as e:
-      print("Handshake failed")
-      exit
+   import buttshock.et312
+   et312 = buttshock.et312.ET312SerialSync(args.port)
+#   try:
+#      et312.perform_handshake()
+#   except buttshock.ButtshockError as e:
+#      print("Handshake failed")
+#      exit
    if (args.usermode):
       program = et312.read(0x8017+int(args.usermode))
       print ("user mode %d is module %d"%(int(args.usermode),program))
