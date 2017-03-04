@@ -91,7 +91,26 @@ def calltable30(mem):
    # d10
    r28&=0xe0;
    if (r28 == 0x20):
-      print ("*** not implemented yet (copy a set of bytes) %02x"%(r28))
+      #print ("*** not implemented yet (copy a set of bytes) %02x"%(r28))
+      r28 = mem[r26r27]
+      r26r27+=1
+      r18 = r28
+      r28 &= 3
+      r2 = r28
+      r30 = mem[r26r27]
+      r26r27+=1
+      r31 = r2
+      # maybe set r31 to a 1 if T set and in a certain range
+      r28 = r18
+      r28 &= 0x1c
+      r28 = r28/4
+      # e0e
+      while(r28>0):
+         r18 = mem[r26r27]
+         r26r27+=1
+         print("memory[%s]=%02x"%(addresstostring(r31*256+r30),r18))
+         r30+=1
+         r28-=1
       return
    if (r28 == 0x40):
       # 0x4x_0x5x d56
@@ -162,7 +181,8 @@ def calltable22(program_number):
       print ("Module %d is at 0x%04x (flash)"%(program_number,program_blockstart))
    else:
       if (program_number < 0xa0):
-         program_lookup = et312.read(0x8020+program_number-0x80)
+         program_lookup = et312.read(0x8000+program_number-0x60)
+         print("Lookup says 0x%04x"%(program_lookup))
          program_blockstart = 0x8040+program_lookup
       else:
          program_lookup = et312.read(0x8100+program_number-0xa0)
