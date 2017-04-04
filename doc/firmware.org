@@ -349,3 +349,15 @@ lights will flash randomly as the data is transferred to the ET-312. DO NOT
 interrupt this process in any way. When the transfer is completed, the ET-312
 will reset and the display should show the new version of the software.
 
+*** Error Messages
+
+| Error | Description                           |
+|-------|---------------------------------------|
+|     4 | Linking boxes failed or communications dropped |
+|    10 | Program contains unknown module number |
+|    15 | Maths error like divide by 0 or wrong random parameters |
+|    16 | Power level is set to invalid value |
+|    20 | FET startup calibration failed |
+|    21 | PSU voltage is too high |
+|    72 | Serial communications buffer is full |
+|    80 | Call to an unknown function |
