@@ -1,0 +1,24 @@
+* ET-312 Debug Mode
+
+The ET-312 has a built in diagnostic screen which looks like it is used when
+boxes are commissioned.
+
+To access it you need to link the tx and rx puns of a 3.5mm jack plug inserted
+into the 'link' socket, then turn on the box with a factory reset (holding the bottom
+two buttons as you turn the box on).  8 numbers will be displayed and updated:
+
+#+BEGIN_EXAMPLE
+241 160  00  00
+ 41  39  37 171
+#+END_EXAMPLE
+
+From top left these are:
+
+- port D input value (i.e. which buttons are being pushed)
+- battery voltage (from ADC3)
+- Audio A input level (from ADC7)
+- Audio B input level (from ADC6)
+- Channel A FET calibration level
+- Channel B FET calibration level
+- MA knob level (from ADC1)
+- OCDR register
